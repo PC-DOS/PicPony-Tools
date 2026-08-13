@@ -1,3 +1,4 @@
+import time
 import os
 import pickle
 
@@ -6,25 +7,15 @@ import pgdumplib
 class DerpibooruDatabaseDump() :
     
     # Constructor
-    def __init__(self, sDumpFile : str, IsCachingEnabled : bool = True) :
+    def __init__(self, sDumpFile : str) :
         print(f"Loading dump file {sDumpFile} ...")
         self._sDumpPath = sDumpFile
-        os.makedirs("_Cache/")
-        sCachepath = "_Cache/" + sDumpFile.replace(":","_").replace("/","_").replace("\\","_").removesuffix(".pgdump") + ".pgdumpcache"
-        if os.path.exists(sCachepath) and IsCachingEnabled :
-            print(f"Cached dump file {sCachepath} found, loading from cache ...")
-            with open(sCachepath, "rb") as filObjDump :
-                self._dmpDumpData = pickle.load(filObjDump)
-            #End With
-        else :
-            self._dmpDumpData = pgdumplib.load(sDumpFile)
-            if IsCachingEnabled :
-                print(f"Caching file to {sCachepath} ...")
-                with open(sCachepath, "wb") as filObjDump :
-                    pickle.dump(self._dmpDumpData, filObjDump)
-                #End With
-            #End If
-        #End If
+        dNsStart = time.perf_counter_ns()
+        self._dmpDumpData = pgdumplib.load(sDumpFile)
+        dNsEnd = time.perf_counter_ns()
+        dNsDelay = dNsEnd - dNsStart
+        dTimeElapsed = dNsDelay / 1000.0 / 1000.0 / 1000.0
+        print(f"Dump file {sDumpFile} loaded in {round(dTimeElapsed, 2)} seconds")
     #End Sub
     
     # Print info
