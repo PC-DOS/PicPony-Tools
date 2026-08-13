@@ -33,8 +33,8 @@ class DerpibooruDatabaseDump() :
             tblTagTable = self._dmpDumpData.table_data("public", "tags")
             for CurrentTag in tblTagTable :
                 dctCurrentTagInfo = dict(Id=0, Name="", Category="", ImageCount="", Slug="")
-                dctCurrentTagInfo["Id"] = CurrentTag[0]
-                dctCurrentTagInfo["ImageCount"] = CurrentTag[1]
+                dctCurrentTagInfo["Id"] = int(CurrentTag[0])
+                dctCurrentTagInfo["ImageCount"] = int(CurrentTag[1])
                 dctCurrentTagInfo["Name"] = CurrentTag[2]
                 dctCurrentTagInfo["Slug"] = CurrentTag[3]
                 dctCurrentTagInfo["Category"] = CurrentTag[4]
@@ -60,18 +60,23 @@ class DerpibooruDatabaseDump() :
         return self.GetTags("name", IsReloadRequested)
     #End Function
     
-    # Get images
-    def GetImages(self, IsReloadRequested : bool = False) -> dict :
-        if (not self._IsImagesLoaded) or IsReloadRequested :
-            tblImageTable = self._dmpDumpData.table_data("public", "images")
-            for CurrentImage in tblImageTable :
-                print(CurrentImage)
-                input()
+    # Get image tags
+    def GetImageTags(self, IsReloadRequested : bool = False) -> dict :
+        if (not self._IsImageTagsLoaded) or IsReloadRequested :
+            tblImageTagTable = self._dmpDumpData.table_data("public", "image_taggings")
+            self._dctImageTags = dict()
+            for CurrentImage in tblImageTagTable :
+                iCurrentImageId = int(CurrentImage[0])
+                iCurrentImageTag = int(CurrentImage[1])
+                if not (iCurrentImageId in self._dctImageTags.keys()) :
+                    self._dctImageTags[iCurrentImageId] = []
+                #End If
+                self._dctImageTags[iCurrentImageId].append(iCurrentImageTag)
             #Next
-            self._IsTagsLoaded = True
+            self._IsImageTagsLoaded = True
         #End If
         
-        return self._dctImages
+        return self._dctImageTags
     #End Function
     
     # Properties
@@ -83,8 +88,8 @@ class DerpibooruDatabaseDump() :
     _IsTagsLoaded = False
     _dctTagInfoById = dict()
     _dctTagInfoByName = dict()
-    # Images
-    _IsImagesLoaded = False
-    _dctImages = dict()
+    # Image tags
+    _IsImageTagsLoaded = False
+    _dctImageTags = dict()
 
 #End Class
