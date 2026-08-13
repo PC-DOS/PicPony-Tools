@@ -50,34 +50,8 @@ if __name__ == "__main__" :
     nImages = len(dctImageTags.keys())
     print(f"{nImages} images found in database dump")
     
-    # Count tags
+    # Count tags    
     print("Counting tags ...")
-    nBuckets = 10000
-    arrTagCount = [0 for i in range(0,nBuckets)]
-    for CurrentTag in dctTagsById.keys() :
-        if dctTagsById[CurrentTag]["ImageCount"] > 0 :
-            iBucket = dctTagsById[CurrentTag]["ImageCount"]
-            if iBucket >= nBuckets :
-                iBucket = nBuckets - 1
-            #End If
-            arrTagCount[iBucket] += 1
-        #End If
-    #Next
-    arrX = [str(i) for i in range(0,nBuckets)]
-    arrX[-1] = ">=" + arrX[-1]
-    plt.bar(arrX, arrTagCount)
-    arrXTicks = []
-    arrXTickLabels = []
-    for i in range(0,nBuckets) :
-        if (i == 1) or (i % 500 == 0) or (i == nBuckets-1) :
-            arrXTicks.append(i)
-            arrXTickLabels.append(arrX[i])
-        #End If
-    #Next
-    plt.xticks(ticks=arrXTicks, labels=arrXTickLabels)
-    plt.title(f"Distribution of Derpibooru tag image count, MergingThreshold={nBuckets}")
-    plt.show()
-    
     nBuckets = 500
     arrTagCount = [0 for i in range(0,nBuckets)]
     for CurrentTag in dctTagsById.keys() :
@@ -90,7 +64,7 @@ if __name__ == "__main__" :
         #End If
     #Next
     arrX = [str(i) for i in range(0,nBuckets)]
-    arrX[-1] = ">=" + arrX[-1]
+    arrX[-1] = ">" + arrX[-1]
     plt.bar(arrX, arrTagCount)
     arrXTicks = []
     arrXTickLabels = []
