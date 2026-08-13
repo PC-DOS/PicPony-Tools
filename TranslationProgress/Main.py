@@ -136,12 +136,12 @@ if __name__ == "__main__" :
             #End If
         #End If
     #Next
-    arrLabels = [f"All tags translated\n{n100TransImg} / {nTotalImg}", 
-        f"90% tags translated\n{n90TransImg} / {nTotalImg}", 
-        f"75% tags translated\n{n75TransImg} / {nTotalImg}", 
-        f"50% tags translated\n{n50TransImg} / {nTotalImg}", 
-        f"At least 1 Tag translated\n{n1TransImg} / {nTotalImg}", 
-        f"0 tags translated\n{n0TransImg} / {nTotalImg}",
+    arrLabels = [f"All tags translated ({n100TransImg} / {nTotalImg})", 
+        f"90% tags translated ({n90TransImg} / {nTotalImg})", 
+        f"75% tags translated ({n75TransImg} / {nTotalImg})", 
+        f"50% tags translated ({n50TransImg} / {nTotalImg})", 
+        f"At least 1 Tag translated ({n1TransImg} / {nTotalImg})", 
+        f"0 tags translated ({n0TransImg} / {nTotalImg})",
     ]
     arrPct = [n100TransImg/nTotalImg, 
         n90TransImg/nTotalImg, 
