@@ -12,12 +12,14 @@ class DerpibooruDatabaseDump() :
         os.makedirs("_Cache/")
         sCachepath = "_Cache/" + sDumpFile.replace(":","_").replace("/","_").replace("\\","_").removesuffix(".pgdump") + ".pgdumpcache"
         if os.path.exists(sCachepath) and IsCachingEnabled :
+            print(f"Cached dump file {sCachepath} found, loading from cache ...")
             with open(sCachepath, "rb") as filObjDump :
                 self._dmpDumpData = pickle.load(filObjDump)
             #End With
         else :
             self._dmpDumpData = pgdumplib.load(sDumpFile)
             if IsCachingEnabled :
+                print(f"Caching file to {sCachepath} ...")
                 with open(sCachepath, "wb") as filObjDump :
                     pickle.dump(self._dmpDumpData, filObjDump)
                 #End With
