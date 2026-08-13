@@ -26,7 +26,7 @@ if __name__ == "__main__" :
     else :
         dctImageTags = dbDerpibooru.GetImageTags()
         with open("_Cache/dctImageTags.pkl", "wb") as filObjDump : 
-            dctImageTags = pickle.dump(dctImageTags, filObjDump)
+            pickle.dump(dctImageTags, filObjDump)
         #End With
     #End If
     nImages = len(dctImageTags.keys())
