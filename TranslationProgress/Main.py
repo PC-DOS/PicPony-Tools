@@ -68,7 +68,7 @@ if __name__ == "__main__" :
     plt.bar(arrX, arrTagCount)
     arrXTicks = []
     arrXTickLabels = []
-    for i in arrTagCount :
+    for i in range(0,nBuckets) :
         if (i == 1) or (i % 500 == 0) or (i == nBuckets-1) :
             arrXTicks.append(i)
             arrXTickLabels.append(arrX[i])
@@ -94,7 +94,7 @@ if __name__ == "__main__" :
     plt.bar(arrX, arrTagCount)
     arrXTicks = []
     arrXTickLabels = []
-    for i in arrTagCount :
+    for i in range(0,nBuckets) :
         if (i == 1) or (i % 100 == 0) or (i == nBuckets-1) :
             arrXTicks.append(i)
             arrXTickLabels.append(arrX[i])
