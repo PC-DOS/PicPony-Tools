@@ -134,8 +134,20 @@ if __name__ == "__main__" :
             #End If
         #End If
     #Next
-    arrLabels = ["All translated", "90% translated", "75% translated", "50% translated", "1 Tag translated", "Nothing translated"]
-    arrPct = [n100TransImg/nTotalImg, n90TransImg/nTotalImg, n75TransImg/nTotalImg, n50TransImg/nTotalImg, n1TransImg/nTotalImg, n0TransImg/nTotalImg]
+    arrLabels = [f"All translated\n{n100TransImg} / {nTotalImg}", 
+        f"90% translated\n{n90TransImg} / {nTotalImg}", 
+        f"75% translated\n{n75TransImg} / {nTotalImg}", 
+        f"50% translated\n{n50TransImg} / {nTotalImg}", 
+        f"1 Tag translated\n{n1TransImg} / {nTotalImg}", 
+        f"Nothing translated\n{n0TransImg} / {nTotalImg}",
+    ]
+    arrPct = [n100TransImg/nTotalImg, 
+        n90TransImg/nTotalImg, 
+        n75TransImg/nTotalImg, 
+        n50TransImg/nTotalImg, 
+        n1TransImg/nTotalImg, 
+        n0TransImg/nTotalImg,
+    ]
     plt.pie(arrPct, labels=arrLabels, autopct="%.2f%%")
     plt.title("Tag translation distribution by image (general tags only)")
     plt.show()
