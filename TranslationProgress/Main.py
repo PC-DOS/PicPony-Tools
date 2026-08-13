@@ -108,7 +108,7 @@ if __name__ == "__main__" :
     #Next
     arrLabels = ["Full", "90%", "75%", "50%", "1 Tag", "None"]
     arrPct = [n100TransImg/nTotalImg, n90TransImg/nTotalImg, n75TransImg/nTotalImg, n50TransImg/nTotalImg, n1TransImg/nTotalImg, n0TransImg/nTotalImg]
-    plt.pie(arrPct, labels=arrLabels, autopct='%1.1f%%')
+    plt.pie(arrPct, labels=arrLabels, autopct="%.2f%%")
     plt.title("Tag translation distribution by image")
     plt.show()
 #End If
