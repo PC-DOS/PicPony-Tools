@@ -3,3 +3,6 @@ tags_translated_*.txt
 
 # Ignore Derpibooru database dump
 *.pgdump
+
+# Ignore caches
+_Cache/

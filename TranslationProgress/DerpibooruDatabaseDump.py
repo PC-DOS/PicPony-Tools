@@ -9,8 +9,8 @@ class DerpibooruDatabaseDump() :
     def __init__(self, sDumpFile : str, IsCachingEnabled : bool = True) :
         print(f"Loading dump file {sDumpFile} ...")
         self._sDumpPath = sDumpFile
-        os.makedirs("Cache/")
-        sCachepath = "Cache/" + sDumpFile.replace(":","_").replace("/","_").replace("\\","_").removesuffix(".pgdump") + ".pgdumpcache"
+        os.makedirs("_Cache/")
+        sCachepath = "_Cache/" + sDumpFile.replace(":","_").replace("/","_").replace("\\","_").removesuffix(".pgdump") + ".pgdumpcache"
         if os.path.exists(sCachepath) and IsCachingEnabled :
             with open(sCachepath, "rb") as filObjDump :
                 self._dmpDumpData = pickle.load(filObjDump)
