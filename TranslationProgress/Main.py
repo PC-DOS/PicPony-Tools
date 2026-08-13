@@ -27,10 +27,12 @@ def LoadObjectFromFile(sPath : str) -> object :
 if __name__ == "__main__" :
     # Load translations
     dctTrans = Trans.LoadTranslatedTags("tags_translated_1786638366195.txt")
+    sTransTimestamp = "20260814-002600"
     
     # Load Derpibooru database dump
     dbDerpibooru = DerpibooruDatabaseDump("derpibooru_public_dump_2026_08_13.pgdump")
     dbDerpibooru.PrintInfo()
+    sDerpibooruTimestamp = dbDerpibooru.GetTimestamp()
     print("Getting tags ...")
     dctTagsByName = dbDerpibooru.GetTagsByName()
     dctTagsById = dbDerpibooru.GetTagsById()
@@ -75,7 +77,7 @@ if __name__ == "__main__" :
         #End If
     #Next
     plt.xticks(ticks=arrXTicks, labels=arrXTickLabels)
-    plt.title(f"Distribution of Derpibooru tag image count, MergingThreshold={nBuckets}")
+    plt.title(f"Distribution of Derpibooru tag image count, MergingThreshold={nBuckets}\nTranslationTimestamp={sTransTimestamp}, DerpibooruDatabaseTimestamp={sDerpibooruTimestamp}")
     plt.show()
     
     # Tag count histogram
@@ -86,7 +88,7 @@ if __name__ == "__main__" :
     #    #End If
     ##Next
     #plt.hist(arrTagCount, bins=500, log=True)
-    #plt.title("Histogram of Derpibooru tag image count")
+    #plt.title(f"Histogram of Derpibooru tag image count\nDerpibooruDatabaseTimestamp={sDerpibooruTimestamp}")
     #plt.show()
     
     # Translation check
@@ -149,6 +151,6 @@ if __name__ == "__main__" :
         n0TransImg/nTotalImg,
     ]
     plt.pie(arrPct, labels=arrLabels, autopct="%.2f%%")
-    plt.title("Tag translation distribution by image (general tags only)")
+    plt.title(f"Tag translation distribution by image (general tags only)\nTranslationTimestamp={sTransTimestamp}, DerpibooruDatabaseTimestamp={sDerpibooruTimestamp}")
     plt.show()
 #End If

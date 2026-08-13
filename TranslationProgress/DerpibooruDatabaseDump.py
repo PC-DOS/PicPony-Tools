@@ -25,6 +25,10 @@ class DerpibooruDatabaseDump() :
         print(f"Dump Version: {self._dmpDumpData.dump_version}")
     #End Sub
     
+    def GetTimestamp() -> str :
+        return self._dmpDumpData.timestamp
+    #End Function
+    
     # Get tags
     def GetTags(self, sIndexType : str = "name", IsReloadRequested : bool = False) -> dict :
         if (not self._IsTagsLoaded) or IsReloadRequested :
