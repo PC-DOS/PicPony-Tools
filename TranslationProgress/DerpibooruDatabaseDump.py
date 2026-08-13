@@ -32,10 +32,15 @@ class DerpibooruDatabaseDump() :
         if (not self._IsTagsLoaded) or IsReloadRequested :
             tblTagTable = self._dmpDumpData.table_data("public", "tags")
             for CurrentTag in tblTagTable :
-                print(CurrentTag)
-                input()
+                dctCurrentTagInfo = dict(Id=0, Name="", Category="", ImageCount="", Slug="")
+                dctCurrentTagInfo["Id"] = CurrentTag[0]
+                dctCurrentTagInfo["ImageCount"] = CurrentTag[1]
+                dctCurrentTagInfo["Name"] = CurrentTag[2]
+                dctCurrentTagInfo["Slug"] = CurrentTag[3]
+                dctCurrentTagInfo["Category"] = CurrentTag[4]
                 
-                dctCurrentTagInfo = dict(Id=0, Name="", Category="", ImageCount="")
+                self._dctTagInfoByName[dctCurrentTagInfo["Name"]] = dctCurrentTagInfo
+                self._dctTagInfoById[dctCurrentTagInfo["Id"]] = dctCurrentTagInfo
             #Next
             self._IsTagsLoaded = True
         #End If
