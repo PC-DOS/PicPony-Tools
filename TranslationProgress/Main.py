@@ -79,15 +79,15 @@ if __name__ == "__main__" :
     plt.show()
     
     # Tag count histogram
-    arrTagCount = []
-    for CurrentTag in dctTagsById.keys() :
-        if dctTagsById[CurrentTag]["ImageCount"] > 0 :
-            arrTagCount.append(dctTagsById[CurrentTag]["ImageCount"])
-        #End If
-    #Next
-    plt.hist(arrTagCount, bins=500, log=True)
-    plt.title("Histogram of Derpibooru tag image count")
-    plt.show()
+    #arrTagCount = []
+    #for CurrentTag in dctTagsById.keys() :
+    #    if dctTagsById[CurrentTag]["ImageCount"] > 0 :
+    #        arrTagCount.append(dctTagsById[CurrentTag]["ImageCount"])
+    #    #End If
+    ##Next
+    #plt.hist(arrTagCount, bins=500, log=True)
+    #plt.title("Histogram of Derpibooru tag image count")
+    #plt.show()
     
     # Translation check
     print("Checking translation progress")
