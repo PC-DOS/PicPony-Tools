@@ -1,6 +1,4 @@
 import time
-import os
-import pickle
 
 import pgdumplib
 
@@ -32,7 +30,7 @@ class DerpibooruDatabaseDump() :
         if (not self._IsTagsLoaded) or IsReloadRequested :
             tblTagTable = self._dmpDumpData.table_data("public", "tags")
             for CurrentTag in tblTagTable :
-                dctCurrentTagInfo = dict(Id=0, Name="", Category="", ImageCount="", Slug="")
+                dctCurrentTagInfo = dict(Id=0, ImageCount=0, Name="", Slug="", Category="")
                 dctCurrentTagInfo["Id"] = int(CurrentTag[0])
                 dctCurrentTagInfo["ImageCount"] = int(CurrentTag[1])
                 dctCurrentTagInfo["Name"] = CurrentTag[2]
