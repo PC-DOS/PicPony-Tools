@@ -89,6 +89,7 @@ if __name__ == "__main__" :
         
         if nValidTags > 0 :
             nTotalImg += 1
+            dctImageTransInfo[CurrentImg] = dict()
             dctImageTransInfo[CurrentImg]["Tags"] = nValidTags
             dctImageTransInfo[CurrentImg]["TransTags"] = nTranslatedTags
             if nTranslatedTags == nValidTags :
