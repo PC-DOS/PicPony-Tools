@@ -25,7 +25,7 @@ class DerpibooruDatabaseDump() :
         print(f"Dump Version: {self._dmpDumpData.dump_version}")
     #End Sub
     
-    def GetTimestamp() -> str :
+    def GetTimestamp(self) -> str :
         return self._dmpDumpData.timestamp
     #End Function
     
