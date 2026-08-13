@@ -1,12 +1,28 @@
+import os
+import pickle
+
 import pgdumplib
 
 class DerpibooruDatabaseDump() :
     
     # Constructor
-    def __init__(self, sDumpFile : str) :
+    def __init__(self, sDumpFile : str, IsCachingEnabled : bool = True) :
         print(f"Loading dump file {sDumpFile} ...")
         self._sDumpPath = sDumpFile
-        self._dmpDumpData = pgdumplib.load(sDumpFile)
+        os.makedirs("Cache/")
+        sCachepath = "Cache/" + sDumpFile.replace(":","_").replace("/","_").replace("\\","_").removesuffix(".pgdump") + ".pgdumpcache"
+        if os.path.exists(sCachepath) and IsCachingEnabled :
+            with open(sCachepath, "rb") as filObjDump :
+                self._dmpDumpData = pickle.load(filObjDump)
+            #End With
+        else :
+            self._dmpDumpData = pgdumplib.load(sDumpFile)
+            if IsCachingEnabled :
+                with open(sCachepath, "wb") as filObjDump :
+                    pickle.dump(self._dmpDumpData, filObjDump)
+                #End With
+            #End If
+        #End If
     #End Sub
     
     # Print info
@@ -25,6 +41,8 @@ class DerpibooruDatabaseDump() :
             for CurrentTag in tblTagTable :
                 print(CurrentTag)
                 input()
+                
+                dctCurrentTagInfo = dict(Id=0, Name="", Category="", ImageCount="")
             #Next
             self._IsTagsLoaded = True
         #End If
