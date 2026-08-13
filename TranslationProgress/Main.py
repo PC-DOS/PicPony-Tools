@@ -77,7 +77,7 @@ if __name__ == "__main__" :
         #End If
     #Next
     plt.xticks(ticks=arrXTicks, labels=arrXTickLabels)
-    plt.title(f"Distribution of Derpibooru tag image count, MergingThreshold={nBuckets}\nTranslationTimestamp={sTransTimestamp}, DerpibooruDatabaseTimestamp={sDerpibooruTimestamp}")
+    plt.title(f"Distribution of Derpibooru tag image count, MergingThreshold={nBuckets}\nDerpibooruDatabaseTimestamp={sDerpibooruTimestamp}")
     plt.show()
     
     # Tag count histogram
@@ -136,12 +136,12 @@ if __name__ == "__main__" :
             #End If
         #End If
     #Next
-    arrLabels = [f"All translated\n{n100TransImg} / {nTotalImg}", 
-        f"90% translated\n{n90TransImg} / {nTotalImg}", 
-        f"75% translated\n{n75TransImg} / {nTotalImg}", 
-        f"50% translated\n{n50TransImg} / {nTotalImg}", 
-        f"1 Tag translated\n{n1TransImg} / {nTotalImg}", 
-        f"Nothing translated\n{n0TransImg} / {nTotalImg}",
+    arrLabels = [f"All tags translated\n{n100TransImg} / {nTotalImg}", 
+        f"90% tags translated\n{n90TransImg} / {nTotalImg}", 
+        f"75% tags translated\n{n75TransImg} / {nTotalImg}", 
+        f"50% tags translated\n{n50TransImg} / {nTotalImg}", 
+        f"At least 1 Tag translated\n{n1TransImg} / {nTotalImg}", 
+        f"0 tags translated\n{n0TransImg} / {nTotalImg}",
     ]
     arrPct = [n100TransImg/nTotalImg, 
         n90TransImg/nTotalImg, 
