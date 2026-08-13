@@ -16,6 +16,8 @@ if __name__ == "__main__" :
     print("Getting tags ...")
     dctTagsByName = dbDerpibooru.GetTagsByName()
     dctTagsById = dbDerpibooru.GetTagsById()
+    nTags = len(dctTagsById.keys())
+    print(f"{nTags} tags found in database dump")
     print("Getting image tags ...")
     if os.path.exists("_Cache/dctImageTags.pkl") :
         with open("_Cache/dctImageTags.pkl", "rb") as filObjDump : 
@@ -28,8 +30,7 @@ if __name__ == "__main__" :
         #End With
     #End If
     nImages = len(dctImageTags.keys())
-    nTags = len(dctTagsById.keys())
-    print(f"{nImages} images and {nTags} tags found in database dump")
+    print(f"{nImages} images found in database dump")
     
     # Count tags
     print("Counting tags ...")
