@@ -77,7 +77,7 @@ if __name__ == "__main__" :
         #End If
     #Next
     plt.xticks(ticks=arrXTicks, labels=arrXTickLabels)
-    plt.title(f"Distribution of Derpibooru tag image count, MergingThreshold={nBuckets}\nDerpibooruDatabaseTimestamp={sDerpibooruTimestamp}")
+    plt.title(f"Distribution of Derpibooru tag image count\nDerpibooruDatabaseTimestamp={sDerpibooruTimestamp}")
     plt.show()
     
     # Tag count histogram
