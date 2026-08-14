@@ -1,5 +1,7 @@
 import os
 import pickle
+import datetime
+import pathlib
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -26,8 +28,13 @@ def LoadObjectFromFile(sPath : str) -> object :
 
 if __name__ == "__main__" :
     # Load translations
-    dctTrans = Trans.LoadTranslatedTags("tags_translated_1786638366195.txt")
-    sTransTimestamp = "20260814-002600"
+    sTransFile = "tags_translated_1786701274684.txt"
+    dctTrans = Trans.LoadTranslatedTags(sTransFile)
+    sTransTimestamp = pathlib.Path(sTransFile).name
+    sTransTimestamp = sTransTimestamp.removeprefix("tags_translated_").removesuffix(".txt")
+    dUnixTimestampMs = int(sTransTimestamp)
+    dtmTransTimestamp = datetime.datetime.fromtimestamp(dUnixTimestampMs / 1000.0)
+    sTransTimestamp = dtmTransTimestamp.strftime("%Y-%m-%d %H:%M:%S")
     
     # Load Derpibooru database dump
     dbDerpibooru = DerpibooruDatabaseDump("derpibooru_public_dump_2026_08_13.pgdump")
