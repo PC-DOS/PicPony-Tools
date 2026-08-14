@@ -51,6 +51,10 @@ if __name__ == "__main__" :
     #End If
     nImages = len(dctImageTags.keys())
     print(f"{nImages} images found in database dump")
+    print("Get hidden images ...")
+    dctImageHides = dbDerpibooru.GetImageHides()
+    nImageHides = len(dctImageHides.keys())
+    print(f"{nImageHides} image hides found in database dump")
     
     # Count tags    
     print("Counting tags ...")
@@ -102,6 +106,10 @@ if __name__ == "__main__" :
     n1TransImg = 0
     n0TransImg = 0
     for CurrentImg in dctImageTags.keys() :
+        if CurrentImg in dctImageHides.keys() :
+            continue
+        #End If
+    
         arrTagIds = dctImageTags[CurrentImg]
         nValidTags = 0
         nTranslatedTags = 0

@@ -81,6 +81,22 @@ class DerpibooruDatabaseDump() :
         return self._dctImageTags
     #End Function
     
+    # Get image hides
+    def GetImageHides(self, IsReloadRequested : bool = False) -> dict :
+        if (not self._IsImageHidesLoaded) or IsReloadRequested :
+            tblImageHideTable = self._dmpDumpData.table_data("public", "image_hides")
+            self._dctImageHides = dict()
+            for CurrentImage in tblImageHideTable :
+                iCurrentImageId = int(CurrentImage[0])
+                sCurrentImageHideReason = CurrentImage[1]
+                self._dctImageHides[iCurrentImageId] = sCurrentImageHideReason
+            #Next
+            self._IsImageHidesLoaded = True
+        #End If
+        
+        return self._dctImageHides
+    #End Function
+    
     # Properties
     
     # Internal variables
@@ -93,5 +109,8 @@ class DerpibooruDatabaseDump() :
     # Image tags
     _IsImageTagsLoaded = False
     _dctImageTags = dict()
+    # Image hides
+    _IsImageHidesLoaded = False
+    _dctImageHides = dict()
 
 #End Class
