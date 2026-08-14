@@ -88,7 +88,7 @@ class DerpibooruDatabaseDump() :
             self._dctImageHides = dict()
             for CurrentImage in tblImageHideTable :
                 iCurrentImageId = int(CurrentImage[0])
-                sCurrentImageHideReason = CurrentImage[1]
+                sCurrentImageHideReason = CurrentImage[1] if len(CurrentImage)>1 else ""
                 self._dctImageHides[iCurrentImageId] = sCurrentImageHideReason
             #Next
             self._IsImageHidesLoaded = True
