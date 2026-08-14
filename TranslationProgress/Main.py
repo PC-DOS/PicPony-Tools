@@ -35,6 +35,7 @@ if __name__ == "__main__" :
     dUnixTimestampMs = int(sTransTimestamp)
     dtmTransTimestamp = datetime.datetime.fromtimestamp(dUnixTimestampMs / 1000.0)
     sTransTimestamp = dtmTransTimestamp.strftime("%Y-%m-%d %H:%M:%S")
+    print(f"Translation file timestamp: {sTransTimestamp}")
     
     # Load Derpibooru database dump
     dbDerpibooru = DerpibooruDatabaseDump("derpibooru_public_dump_2026_08_13.pgdump")
