@@ -28,7 +28,7 @@ def LoadObjectFromFile(sPath : str) -> object :
 
 if __name__ == "__main__" :
     # Load translations
-    sTransFile = "tags_translated_1786709713871.txt"
+    sTransFile = "tags_translated_1786807445574.txt"
     dctTrans = Trans.LoadTranslatedTags(sTransFile)
     sTransTimestamp = pathlib.Path(sTransFile).name
     sTransTimestamp = sTransTimestamp.removeprefix("tags_translated_").removesuffix(".txt")
@@ -38,7 +38,7 @@ if __name__ == "__main__" :
     print(f"Translation file timestamp: {sTransTimestamp}")
     
     # Load Derpibooru database dump
-    dbDerpibooru = DerpibooruDatabaseDump("derpibooru_public_dump_2026_08_13.pgdump")
+    dbDerpibooru = DerpibooruDatabaseDump("derpibooru_public_dump_2026_08_15.pgdump")
     dbDerpibooru.PrintInfo()
     sDerpibooruTimestamp = dbDerpibooru.GetTimestamp()
     print("Getting tags ...")
