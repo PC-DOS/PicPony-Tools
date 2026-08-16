@@ -47,12 +47,12 @@ if __name__ == "__main__" :
     nProcessed = 0
     nSkipped = 0
     for CurrentTag in dctTarget.keys() :
-        sBaseTag = CurrentTag.removeprefix("fusion:")
+        sBaseTag = CurrentTag.removeprefix("implied ")
         if sBaseTag in dctTrans.keys() :
             arrCurrentSource = dctTrans[sBaseTag]["TransCn"]
             dctTarget[CurrentTag]["TransCn"] = []
             for CurrentSource in arrCurrentSource :
-                dctTarget[CurrentTag]["TransCn"].append(f"融合：{CurrentSource}")
+                dctTarget[CurrentTag]["TransCn"].append(f"暗示{CurrentSource}")
             #Next
             nProcessed += 1
         else :
