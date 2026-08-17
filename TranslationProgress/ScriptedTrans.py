@@ -82,7 +82,7 @@ def JoinMultipleStringArray(arrStrArray : list, sSeparator : str) -> list :
 
 if __name__ == "__main__" :
     # Load translations
-    sTransFile = "tags_translated_1786977872090.jsonl"
+    sTransFile = "tags_translated_1786981181742.jsonl"
     dctTrans = Trans.LoadTranslatedTags(sTransFile)
     sTransTimestamp = pathlib.Path(sTransFile).stem
     sTransTimestamp = sTransTimestamp.removeprefix("tags_translated_")
