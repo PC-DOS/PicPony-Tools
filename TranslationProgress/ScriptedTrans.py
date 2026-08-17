@@ -82,7 +82,7 @@ def JoinMultipleStringArray(arrStrArray : list, sSeparator : str) -> list :
 
 if __name__ == "__main__" :
     # Load translations
-    sTransFile = "tags_translated_1786977367366.jsonl"
+    sTransFile = "tags_translated_1786977872090.jsonl"
     dctTrans = Trans.LoadTranslatedTags(sTransFile)
     sTransTimestamp = pathlib.Path(sTransFile).stem
     sTransTimestamp = sTransTimestamp.removeprefix("tags_translated_")
@@ -249,8 +249,9 @@ if __name__ == "__main__" :
                 #Next
                 nProcessed += 1
             else :
-                dctTarget[CurrentTag]["TransCn"] = [f"融合：{sBaseTag}"]
-                nProcessed += 1
+                nSkipped += 1
+                #dctTarget[CurrentTag]["TransCn"] = [f"融合：{sBaseTag}"]
+                #nProcessed += 1
             #End If
         elif CurrentTag.startswith("futa oc:") :
             sBaseTag = CurrentTag.removeprefix("futa oc:")
@@ -375,6 +376,8 @@ if __name__ == "__main__" :
                     arrTagIntersectionStr.append(dctTagsById[CurrentId]["Name"])
                 elif dctTagsById[CurrentId]["Category"] is None :
                     if dctTagsById[CurrentId]["Name"].startswith("ship:") or ("shipping" in dctTagsById[CurrentId]["Name"]) :
+                        continue
+                    elif dctTagsById[CurrentId]["Name"].startswith("busty ") :
                         continue
                     elif (CurrentId in dctTagImpl.keys()) and (dctTagsByName["rule 63"]["Id"] in dctTagImpl[CurrentId]) :
                         arrTagIntersectionStr.append(dctTagsById[CurrentId]["Name"])
