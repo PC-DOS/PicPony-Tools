@@ -286,6 +286,42 @@ if __name__ == "__main__" :
                 dctTarget[CurrentTag]["TransCn"] = [f"扶她{sBaseTag}"]
                 nProcessed += 1
             #End If
+        elif CurrentTag.startswith("busty oc:") :
+            sBaseTag = CurrentTag.removeprefix("busty oc:")
+            if "oc:"+sBaseTag in dctTrans.keys() :
+                arrCurrentSource = dctTrans["oc:"+sBaseTag]["TransCn"]
+                dctTarget[CurrentTag]["TransCn"] = []
+                for CurrentSource in arrCurrentSource :
+                    dctTarget[CurrentTag]["TransCn"].append(f"丰满的{CurrentSource.removeprefix('oc:')}")
+                    dctTarget[CurrentTag]["TransCn"].append(f"丰乳{CurrentSource.removeprefix('oc:')}")
+                #Next
+                nProcessed += 1
+            else :
+                dctTarget[CurrentTag]["TransCn"] = [f"丰满的{sBaseTag}（OC）", f"丰乳{sBaseTag}（OC）"]
+                nProcessed += 1
+            #End If
+        elif CurrentTag.startswith("busty ") :
+            sBaseTag = CurrentTag.removeprefix("busty ")
+            if sBaseTag in dctTrans.keys() :
+                arrCurrentSource = dctTrans[sBaseTag]["TransCn"]
+                dctTarget[CurrentTag]["TransCn"] = []
+                for CurrentSource in arrCurrentSource :
+                    dctTarget[CurrentTag]["TransCn"].append(f"丰满的{CurrentSource}")
+                    dctTarget[CurrentTag]["TransCn"].append(f"丰乳{CurrentSource}")
+                #Next
+                nProcessed += 1
+            elif "oc:"+sBaseTag in dctTrans.keys() :
+                arrCurrentSource = dctTrans["oc:"+sBaseTag]["TransCn"]
+                dctTarget[CurrentTag]["TransCn"] = []
+                for CurrentSource in arrCurrentSource :
+                    dctTarget[CurrentTag]["TransCn"].append(f"丰满的{CurrentSource.removeprefix('oc:')}")
+                    dctTarget[CurrentTag]["TransCn"].append(f"丰乳{CurrentSource.removeprefix('oc:')}")
+                #Next
+                nProcessed += 1
+            else :
+                dctTarget[CurrentTag]["TransCn"] = [f"丰满的{sBaseTag}", f"丰乳{sBaseTag}"]
+                nProcessed += 1
+            #End If
         elif CurrentTag.startswith("stupid sexy ") :
             sBaseTag = CurrentTag.removeprefix("stupid sexy ")
             if sBaseTag in dctTrans.keys() :
