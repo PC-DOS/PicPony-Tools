@@ -60,7 +60,7 @@ if __name__ == "__main__" :
     #End If
     nImages = len(dctImageTags.keys())
     print(f"{nImages} images found in database dump")
-    print("Get hidden images ...")
+    print("Getting hidden images ...")
     dctImageHides = dbDerpibooru.GetImageHides()
     nImageHides = len(dctImageHides.keys())
     print(f"{nImageHides} image hides found in database dump")

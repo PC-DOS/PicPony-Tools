@@ -1,4 +1,5 @@
 import os
+import copy
 import pickle
 import datetime
 import pathlib
@@ -59,6 +60,26 @@ def IntersectArrays(arrArray1 : list, arrArray2 : list,
     return arrResult
 #End Function
 
+# Join multiple string arrays
+# For example, arrStrArray=[["a1","a2"], ["b1","b2"]], sSeparator=" x "
+# This func will return ["a1 x b1", "a1 x b2", "a2 x b1", "a2 x b2"]
+def JoinMultipleStringArray(arrStrArray : list, sSeparator : str) -> list :
+    arrResult = []
+    
+    if len(arrStrArray) == 1 :
+        arrResult = [str(obj) for obj in arrStrArray[0]]
+    else :
+        arrNestedResult = JoinMultipleStringArray(arrStrArray[1:], sSeparator)
+        for str1 in arrStrArray[0] :
+            for str2 in arrNestedResult :
+                arrResult.append(str(str1) + sSeparator + str2)
+            #Next
+        #Next
+    #End If
+    
+    return arrResult
+#End Function
+
 if __name__ == "__main__" :
     # Load translations
     sTransFile = "tags_translated_1786945553220.jsonl"
@@ -105,6 +126,14 @@ if __name__ == "__main__" :
         #End If
         nImages = len(dctImageTags.keys())
         print(f"{nImages} images found in database dump")
+        print("Getting hidden images ...")
+        dctImageHides = dbDerpibooru.GetImageHides()
+        nImageHides = len(dctImageHides.keys())
+        print(f"{nImageHides} image hides found in database dump")
+        print("Getting tag implications ...")
+        dctTagImpl = dbDerpibooru.GetTagImplications()
+        nTagImpl = len(dctTagImpl.keys())
+        print(f"{nTagImpl} tag implications found in database dump")
     #End If
     
     # Batch translating
@@ -281,61 +310,99 @@ if __name__ == "__main__" :
                 # Find shipping couple tags by indexing images
                 print(f"    Ship tag: {CurrentTag}")
                 iCurrentShipTag = dctTagsByName[CurrentTag]["Id"]
+                sCurrentTagShortDesc = dctTagsByName[CurrentTag]["ShortDesc"].lower().removesuffix(" shipping")
+                arrCurrentTagShortDesc = sCurrentTagShortDesc.split(" x ")
+                IsShortDescParsed = False
                 arrTagIntersection = []
-                for CurrentImg in dctImageTags.keys() :
-                    if CurrentImg in dctImageHides.keys() :
-                        continue
+                for s in arrCurrentTagShortDesc :
+                    if s in dctTagsByName.keys() :
+                        arrTagIntersection.append(dctTagsByName[s]["Id"])
+                        IsShortDescParsed = True
+                    else :
+                        IsShortDescParsed = False
+                        break
                     #End If
-                    arrTagIds = dctImageTags[CurrentImg]
-                    arrTagIntersection = IntersectArrays(arrTagIntersection, arrTagIds, sEmptyListOperation="keep")
                 #Next
-                print(f"        Intersected tag IDs: {arrTagIntersection}")
-                if len(arrTagIntersection) <= 1 :
-                    nSkipped += 1
-                    continue
+                if (len(arrTagIntersection) <= 1) or (not IsShortDescParsed) :
+                    if iCurrentShipTag in dctTagImpl.keys() :
+                        arrTagIntersection = dctTagImpl[iCurrentShipTag]
+                    else :
+                        for CurrentImg in dctImageTags.keys() :
+                            if CurrentImg in dctImageHides.keys() :
+                                continue
+                            #End If
+                            arrTagIds = dctImageTags[CurrentImg]
+                            if not (iCurrentShipTag in arrTagIds) :
+                                continue
+                            #End If
+                            if len(arrTagIds) < 10 :
+                                continue
+                            #End If
+                            arrTagIntersection = IntersectArrays(arrTagIntersection, arrTagIds, sEmptyListOperation="keep")
+                        #Next
+                    #End If
                 #End If
+                print(f"        Intersected tag IDs: {arrTagIntersection}")
                 
                 # Map tag intersection to text
+                arrTagIntersectionStrRaw = []
                 arrTagIntersectionStr = []
                 for CurrentId in arrTagIntersection :
-                    if dctTagsById[CurrentId]["Category"] is None :
-                        continue
+                    arrTagIntersectionStrRaw.append(dctTagsById[CurrentId]["Name"])
+                    if IsShortDescParsed :
+                        arrTagIntersectionStr.append(dctTagsById[CurrentId]["Name"])
+                    elif dctTagsById[CurrentId]["Category"] is None :
+                        if dctTagsById[CurrentId]["Name"].startswith("ship:") or ("shipping" in dctTagsById[CurrentId]["Name"]) :
+                            continue
+                        elif (CurrentId in dctTagImpl.keys()) and (dctTagsByName["rule 63"]["Id"] in dctTagImpl[CurrentId]) :
+                            arrTagIntersectionStr.append(dctTagsById[CurrentId]["Name"])
+                        else :
+                            continue
+                        #End If
                     elif dctTagsById[CurrentId]["Category"].lower() == "character" :
                         arrTagIntersectionStr.append(dctTagsById[CurrentId]["Name"])
                     elif dctTagsById[CurrentId]["Name"].startswith("oc:") :
                         arrTagIntersectionStr.append(dctTagsById[CurrentId]["Name"])
                     #End If
                 #Next
-                print(f"        Intersected tag names: {arrTagIntersectionStr}")
+                print(f"        Intersected tag names: {arrTagIntersectionStrRaw}")
+                print(f"        Intersected tag names (character & oc only): {arrTagIntersectionStr}")
+                if len(arrTagIntersectionStr) <= 1 :
+                    nSkipped += 1
+                    continue
+                #End If
                 
                 # Translating
-                sResult = "cp:"
+                arrTranslatedTags = []
+                arrResult = []
                 for i in range(0, len(arrTagIntersectionStr)) :
+                    arrCurrentTagTrans = []
                     if arrTagIntersectionStr[i].startswith("oc:") :
                         if arrTagIntersectionStr[i] in dctTrans.keys() :
-                            sResult = sResult + dctTrans[arrTagIntersectionStr[i]]["TransCn"][0].removeprefix("oc:")
+                            arrCurrentTagTrans = [s.removeprefix("oc:") for s in dctTrans[arrTagIntersectionStr[i]]["TransCn"]]
                         else :
-                            sResult = sResult + arrTagIntersectionStr[i].removeprefix("oc:") + "（OC）"
+                            arrCurrentTagTrans = [arrTagIntersectionStr[i].removeprefix("oc:") + "（OC）"]
                         #End If
                     else :
                         if arrTagIntersectionStr[i] in dctTrans.keys() :
-                            sResult = sResult + dctTrans[arrTagIntersectionStr[i]]["TransCn"][0]
+                            arrCurrentTagTrans = [s for s in dctTrans[arrTagIntersectionStr[i]]["TransCn"]]
                         else :
-                            sResult = sResult + arrTagIntersectionStr[i]
+                            arrCurrentTagTrans = [arrTagIntersectionStr[i]]
                         #End If
                     #End If
-                    if i < len(arrTagIntersectionStr)-1 :
-                        sResult = sResult + "x"
-                    #End If
+                    arrTranslatedTags.append(arrCurrentTagTrans)
                 #Next
-                print(f"        Proposed result: {sResult}")
+                arrResult = JoinMultipleStringArray(arrTranslatedTags, "x")
+                arrResultShip = [f"cp:{s}" for s in arrResult]
+                print(f"        Proposed result: {arrResultShip}")
                 
                 # Outputting
-                dctTarget[CurrentTag]["TransCn"] = [f"{sResult}"]
+                dctTarget[CurrentTag]["TransCn"] = arrResultShip
                 nProcessed += 1
             except :
                 nSkipped += 1
             #End Try
+            #input()
         else :
             nSkipped += 1
         #End If

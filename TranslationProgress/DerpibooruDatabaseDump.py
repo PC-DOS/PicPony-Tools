@@ -99,6 +99,44 @@ class DerpibooruDatabaseDump() :
         return self._dctImageHides
     #End Function
     
+    # Get tag to image mapping
+    def GetTagToImageMapping(self, IsReloadRequested : bool = False) -> dict :
+        if (not self._IsTagToImageMappingLoaded) or IsReloadRequested :
+            tblImageTagTable = self._dmpDumpData.table_data("public", "image_taggings")
+            self._dctTagToImageMapping = dict()
+            for CurrentImage in tblImageTagTable :
+                iCurrentImageId = int(CurrentImage[0])
+                iCurrentImageTag = int(CurrentImage[1])
+                if not (iCurrentImageTag in self._dctTagToImageMapping.keys()) :
+                    self._dctTagToImageMapping[iCurrentImageTag] = []
+                #End If
+                self._dctTagToImageMapping[iCurrentImageTag].append(iCurrentImageId)
+            #Next
+            self._IsTagToImageMappingLoaded = True
+        #End If
+        
+        return self._dctTagToImageMapping
+    #End Function
+    
+    # Get tag to image mapping
+    def GetTagImplications(self, IsReloadRequested : bool = False) -> dict :
+        if (not self._IsTagImplicationsLoaded) or IsReloadRequested :
+            tblImageTagTable = self._dmpDumpData.table_data("public", "tag_implications")
+            self._dctTagImplications = dict()
+            for CurrentTag in tblImageTagTable :
+                iCurrentTagId = int(CurrentTag[0])
+                iCurrentTagTarget = int(CurrentTag[1])
+                if not (iCurrentTagId in self._dctTagImplications.keys()) :
+                    self._dctTagImplications[iCurrentTagId] = []
+                #End If
+                self._dctTagImplications[iCurrentTagId].append(iCurrentTagTarget)
+            #Next
+            self._IsTagImplicationsLoaded = True
+        #End If
+        
+        return self._dctTagImplications
+    #End Function
+    
     # Safe indexing
     def SafeIndex(self, objSource : object, objIndex : object, objDefault : object = None) -> object :
         try :
@@ -123,5 +161,11 @@ class DerpibooruDatabaseDump() :
     # Image hides
     _IsImageHidesLoaded = False
     _dctImageHides = dict()
+    # Tag to image mapping
+    _IsTagToImageMappingLoaded = False
+    _dctTagToImageMapping = dict()
+    # Tag implications
+    _IsTagImplicationsLoaded = False
+    _dctTagImplications = dict()
 
 #End Class
