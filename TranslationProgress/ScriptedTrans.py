@@ -48,16 +48,17 @@ if __name__ == "__main__" :
     nProcessed = 0
     nSkipped = 0
     for CurrentTag in dctTarget.keys() :
-        sBaseTag = CurrentTag.removeprefix("parent:")
-        #if sBaseTag in dctTrans.keys() :
-        if True :
-            #arrCurrentSource = dctTrans[sBaseTag]["TransCn"]
-            dctTarget[CurrentTag]["TransCn"] = [f"亲代：{sBaseTag}"]
-            #for CurrentSource in arrCurrentSource :
-            #    dctTarget[CurrentTag]["TransCn"].append(f"亲代：{CurrentSource}")
+        sBaseTag = CurrentTag.removeprefix("fusion:")
+        if sBaseTag in dctTrans.keys() :
+            arrCurrentSource = dctTrans[sBaseTag]["TransCn"]
+            dctTarget[CurrentTag]["TransCn"] = []
+            for CurrentSource in arrCurrentSource :
+                dctTarget[CurrentTag]["TransCn"].append(f"融合：{CurrentSource}")
             #Next
             nProcessed += 1
         else :
+            #dctTarget[CurrentTag]["TransCn"] = [f"融合：{sBaseTag}"]
+            #nProcessed += 1
             nSkipped += 1
         #End If
         nTotal += 1
