@@ -34,7 +34,7 @@ def LoadTranslatedTags(sFile : str) -> dict :
             
             arrAlias = dctCurrentTrans["aliases"]
             for CurrentAlias in arrAlias :
-                sTrans.append(CurrentAlias)
+                arrTrans.append(CurrentAlias)
             #Next
             
             dctCurrentTrans = dict(TransCn=[], Desc="")
@@ -75,7 +75,7 @@ def ExportTranslatedTags(dctTags : dict, sFile : str) :
             #Next
             sDesc = dctTags[sTag]["Desc"]
             dctCurrentTransToJson = dict(en=sTag, cn=sTrans, aliases=arrAlias, description=sDesc)
-            sCurrentLine = json.dumps(dctCurrentTransToJson)
+            sCurrentLine = json.dumps(dctCurrentTransToJson, ensure_ascii=False)
             sCurrentLine = sCurrentLine + "\n"
             filTranslation.write(sCurrentLine)
             nProcessdTags += 1

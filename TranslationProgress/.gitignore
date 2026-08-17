@@ -1,5 +1,6 @@
 # Ignore tag translations
 tags_*.txt
+tags_*.jsonl
 
 # Ignore Derpibooru database dump
 *.pgdump

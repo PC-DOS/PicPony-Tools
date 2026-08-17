@@ -29,10 +29,10 @@ def LoadObjectFromFile(sPath : str) -> object :
 
 if __name__ == "__main__" :
     # Load translations
-    sTransFile = "tags_translated_1786939286132.txt"
+    sTransFile = "tags_translated_1786945553220.jsonl"
     dctTrans = Trans.LoadTranslatedTags(sTransFile)
-    sTransTimestamp = pathlib.Path(sTransFile).name
-    sTransTimestamp = sTransTimestamp.removeprefix("tags_translated_").removesuffix(".txt")
+    sTransTimestamp = pathlib.Path(sTransFile).stem
+    sTransTimestamp = sTransTimestamp.removeprefix("tags_translated_")
     dUnixTimestampMs = int(sTransTimestamp)
     dtmTransTimestamp = datetime.datetime.fromtimestamp(dUnixTimestampMs / 1000.0)
     sTransTimestamp = dtmTransTimestamp.strftime("%Y-%m-%d %H:%M:%S")
