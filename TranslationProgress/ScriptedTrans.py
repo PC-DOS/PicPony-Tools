@@ -76,7 +76,13 @@ if __name__ == "__main__" :
     dctTarget = Trans.LoadTranslatedTags(sTragetFile)
     
     # Load Derpibooru database dump
-    IsDerpibooruDbNeeded = False 
+    IsDerpibooruDbNeeded = False
+    for CurrentTag in dctTarget.keys() :
+        if CurrentTag.startswith("ship:") :
+            IsDerpibooruDbNeeded = True
+            break
+        #End If
+    #Next
     if IsDerpibooruDbNeeded :
         dbDerpibooru = DerpibooruDatabaseDump("derpibooru_public_dump_2026_08_15.pgdump")
         dbDerpibooru.PrintInfo()
