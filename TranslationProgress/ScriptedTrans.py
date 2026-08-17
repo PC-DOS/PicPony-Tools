@@ -290,6 +290,10 @@ if __name__ == "__main__" :
                     arrTagIntersection = IntersectArrays(arrTagIntersection, arrTagIds, sEmptyListOperation="keep")
                 #Next
                 print(f"        Intersected tag IDs: {arrTagIntersection}")
+                if len(arrTagIntersection) <= 1 :
+                    nSkipped += 1
+                    continue
+                #End If
                 
                 # Map tag intersection to text
                 arrTagIntersectionStr = []
