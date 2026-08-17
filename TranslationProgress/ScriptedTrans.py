@@ -6,7 +6,8 @@ import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
 
-import TranslatedTagsUtil as Trans
+#import TranslatedTagsUtilPlainText as Trans
+import TranslatedTagsUtilJSON as Trans
 from DerpibooruDatabaseDump import DerpibooruDatabaseDump
 
 # Dump an object to persistent file on disk
