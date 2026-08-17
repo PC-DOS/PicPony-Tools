@@ -28,7 +28,7 @@ def LoadObjectFromFile(sPath : str) -> object :
 
 if __name__ == "__main__" :
     # Load translations
-    sTransFile = "tags_translated_1786807445574.txt"
+    sTransFile = "tags_translated_1786939286132.txt"
     dctTrans = Trans.LoadTranslatedTags(sTransFile)
     sTransTimestamp = pathlib.Path(sTransFile).name
     sTransTimestamp = sTransTimestamp.removeprefix("tags_translated_").removesuffix(".txt")
