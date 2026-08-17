@@ -87,6 +87,19 @@ if __name__ == "__main__" :
             else :
                 nSkipped += 1
             #End If
+        elif CurrentTag.startswith("implied oc:") :
+            sBaseTag = CurrentTag.removeprefix("implied oc:")
+            if "oc:"+sBaseTag in dctTrans.keys() :
+                arrCurrentSource = dctTrans["oc:"+sBaseTag]["TransCn"]
+                dctTarget[CurrentTag]["TransCn"] = []
+                for CurrentSource in arrCurrentSource :
+                    dctTarget[CurrentTag]["TransCn"].append(f"暗示{CurrentSource.removeprefix('oc:')}")
+                #Next
+                nProcessed += 1
+            else :
+                dctTarget[CurrentTag]["TransCn"] = [f"暗示{sBaseTag}（OC）"]
+                nProcessed += 1
+            #End If
         elif CurrentTag.startswith("implied ") :
             sBaseTag = CurrentTag.removeprefix("implied ")
             if sBaseTag in dctTrans.keys() :
@@ -144,6 +157,59 @@ if __name__ == "__main__" :
                 nProcessed += 1
             else :
                 dctTarget[CurrentTag]["TransCn"] = [f"融合：{sBaseTag}"]
+                nProcessed += 1
+            #End If
+        elif CurrentTag.startswith("futa oc:") :
+            sBaseTag = CurrentTag.removeprefix("futa oc:")
+            if "oc:"+sBaseTag in dctTrans.keys() :
+                arrCurrentSource = dctTrans["oc:"+sBaseTag]["TransCn"]
+                dctTarget[CurrentTag]["TransCn"] = []
+                for CurrentSource in arrCurrentSource :
+                    dctTarget[CurrentTag]["TransCn"].append(f"扶她{CurrentSource.removeprefix('oc:')}")
+                #Next
+                nProcessed += 1
+            else :
+                dctTarget[CurrentTag]["TransCn"] = [f"扶她{sBaseTag}（OC）"]
+                nProcessed += 1
+            #End If
+        elif CurrentTag.startswith("futa ") :
+            sBaseTag = CurrentTag.removeprefix("futa ")
+            if sBaseTag in dctTrans.keys() :
+                arrCurrentSource = dctTrans[sBaseTag]["TransCn"]
+                dctTarget[CurrentTag]["TransCn"] = []
+                for CurrentSource in arrCurrentSource :
+                    dctTarget[CurrentTag]["TransCn"].append(f"扶她{CurrentSource}")
+                #Next
+                nProcessed += 1
+            elif "oc:"+sBaseTag in dctTrans.keys() :
+                arrCurrentSource = dctTrans["oc:"+sBaseTag]["TransCn"]
+                dctTarget[CurrentTag]["TransCn"] = []
+                for CurrentSource in arrCurrentSource :
+                    dctTarget[CurrentTag]["TransCn"].append(f"扶她{CurrentSource.removeprefix('oc:')}")
+                #Next
+                nProcessed += 1
+            else :
+                dctTarget[CurrentTag]["TransCn"] = [f"扶她{sBaseTag}"]
+                nProcessed += 1
+            #End If
+        elif CurrentTag.startswith("stupid sexy ") :
+            sBaseTag = CurrentTag.removeprefix("stupid sexy ")
+            if sBaseTag in dctTrans.keys() :
+                arrCurrentSource = dctTrans[sBaseTag]["TransCn"]
+                dctTarget[CurrentTag]["TransCn"] = []
+                for CurrentSource in arrCurrentSource :
+                    dctTarget[CurrentTag]["TransCn"].append(f"性感蠢萌{CurrentSource}")
+                #Next
+                nProcessed += 1
+            elif "oc:"+sBaseTag in dctTrans.keys() :
+                arrCurrentSource = dctTrans["oc:"+sBaseTag]["TransCn"]
+                dctTarget[CurrentTag]["TransCn"] = []
+                for CurrentSource in arrCurrentSource :
+                    dctTarget[CurrentTag]["TransCn"].append(f"性感蠢萌{CurrentSource.removeprefix('oc:')}")
+                #Next
+                nProcessed += 1
+            else :
+                dctTarget[CurrentTag]["TransCn"] = [f"性感蠢萌{sBaseTag}"]
                 nProcessed += 1
             #End If
         else :
