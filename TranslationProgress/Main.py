@@ -29,7 +29,7 @@ def LoadObjectFromFile(sPath : str) -> object :
 
 if __name__ == "__main__" :
     # Load translations
-    sTransFile = "tags_translated_1786945553220.jsonl"
+    sTransFile = "tags_translated_1786977367366.jsonl"
     dctTrans = Trans.LoadTranslatedTags(sTransFile)
     sTransTimestamp = pathlib.Path(sTransFile).stem
     sTransTimestamp = sTransTimestamp.removeprefix("tags_translated_")
