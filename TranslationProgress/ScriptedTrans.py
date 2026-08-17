@@ -352,13 +352,16 @@ if __name__ == "__main__" :
                     
                     # Get max count tags
                     nMaxTagCount = min(10, len(dctTagCounter.keys()))
+                    arrTopTags = []
                     for j in range(0, nMaxTagCount) :
                         iCurrentTag = max(dctTagCounter, key=dctTagCounter.get)
                         if not (iCurrentTag in arrTagIntersection) :
                             arrTagIntersection.append(iCurrentTag)
                         #End If
                         dctTagCounter[iCurrentTag] = -1
+                        arrTopTags.append(dctTagsById[iCurrentTag]["Name"])
                     #Next
+                    print(f"        Top tags: {arrTopTags}")
                 #End If
             #End If
             print(f"        Intersected tag IDs: {arrTagIntersection}")
