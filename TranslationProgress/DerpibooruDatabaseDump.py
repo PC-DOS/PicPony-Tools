@@ -34,12 +34,14 @@ class DerpibooruDatabaseDump() :
         if (not self._IsTagsLoaded) or IsReloadRequested :
             tblTagTable = self._dmpDumpData.table_data("public", "tags")
             for CurrentTag in tblTagTable :
-                dctCurrentTagInfo = dict(Id=0, ImageCount=0, Name="", Slug="", Category="")
+                dctCurrentTagInfo = dict(Id=0, ImageCount=0, Name="", Slug="", Category="", Desc="", ShortDesc="")
                 dctCurrentTagInfo["Id"] = int(CurrentTag[0])
                 dctCurrentTagInfo["ImageCount"] = int(CurrentTag[1])
                 dctCurrentTagInfo["Name"] = CurrentTag[2]
                 dctCurrentTagInfo["Slug"] = CurrentTag[3]
-                dctCurrentTagInfo["Category"] = CurrentTag[4]
+                dctCurrentTagInfo["Category"] = self.SafeIndex(CurrentTag, 4, None)
+                dctCurrentTagInfo["Desc"] = self.SafeIndex(CurrentTag, 5, "")
+                dctCurrentTagInfo["ShortDesc"] = self.SafeIndex(CurrentTag, 6, "")
                 
                 self._dctTagInfoByName[dctCurrentTagInfo["Name"]] = dctCurrentTagInfo
                 self._dctTagInfoById[dctCurrentTagInfo["Id"]] = dctCurrentTagInfo
@@ -88,7 +90,7 @@ class DerpibooruDatabaseDump() :
             self._dctImageHides = dict()
             for CurrentImage in tblImageHideTable :
                 iCurrentImageId = int(CurrentImage[0])
-                sCurrentImageHideReason = CurrentImage[1] if len(CurrentImage)>1 else ""
+                sCurrentImageHideReason = self.SafeIndex(CurrentImage, 1, "")
                 self._dctImageHides[iCurrentImageId] = sCurrentImageHideReason
             #Next
             self._IsImageHidesLoaded = True
@@ -96,6 +98,15 @@ class DerpibooruDatabaseDump() :
         
         return self._dctImageHides
     #End Function
+    
+    # Safe indexing
+    def SafeIndex(self, objSource : object, objIndex : object, objDefault : object = None) -> object :
+        try :
+            return objSource[objIndex]
+        except :
+            return objDefault
+        #End Try
+    #End If
     
     # Properties
     
