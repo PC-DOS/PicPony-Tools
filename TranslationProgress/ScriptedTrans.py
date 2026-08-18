@@ -1,88 +1,19 @@
 import os
 import copy
-import pickle
 import datetime
 import pathlib
 
 import numpy as np
 import matplotlib.pyplot as plt
 
+import SharedDataAndFunc as Shared
 #import TranslatedTagsUtilPlainText as Trans
 import TranslatedTagsUtilJSON as Trans
 from DerpibooruDatabaseDump import DerpibooruDatabaseDump
 
-# Dump an object to persistent file on disk
-def DumpObjectToFile(objInstance : object, sPath : str) :
-    import pickle
-    with open(sPath, "wb") as filObjDump :
-        pickle.dump(objInstance, filObjDump)
-    #End With
-#End Sub
-
-# Load an object from persistent file on disk
-def LoadObjectFromFile(sPath : str) -> object :
-    import pickle
-    with open(sPath, "rb") as filObjDump :
-        objInstance = pickle.load(filObjDump)
-    #End With
-    return objInstance
-#End Function
-
-# Intersect arrays (get intersection)
-# Duplicate elements will be merged
-# If sEmptyListOperation is set to "none", will do normal mathematical intersection calculation (Set1 & EmptySet == EmptySet)
-# If sEmptyListOperation is set to "keep" and one of the given arrays is empty, intersection will not be calculated, and will return another array (Set1 & EmptySet == Set1)
-def IntersectArrays(arrArray1 : list, arrArray2 : list,
-    IsDuplicateItemsDropped : bool = True, sEmptyListOperation : str = "none") -> list :
-
-    # Check if one of the given arrays is empty
-    if sEmptyListOperation.lower() == "keep" :
-        if len(arrArray1) == 0 :
-            return copy.deepcopy(arrArray2)
-        elif len(arrArray2) == 0 :
-            return copy.deepcopy(arrArray1)
-        #End If
-    #End If
-
-    arrResult = []
-    for CurrentElement in arrArray1 :
-        if (CurrentElement in arrResult) and IsDuplicateItemsDropped :
-            continue
-        #End If
-        if CurrentElement in arrArray2 :
-            if (CurrentElement in arrResult) and IsDuplicateItemsDropped :
-                continue
-            #End If
-            arrResult.append(CurrentElement)
-        #End If
-    #Next
-
-    return arrResult
-#End Function
-
-# Join multiple string arrays
-# For example, arrStrArray=[["a1","a2"], ["b1","b2"]], sSeparator=" x "
-# This func will return ["a1 x b1", "a1 x b2", "a2 x b1", "a2 x b2"]
-def JoinMultipleStringArray(arrStrArray : list, sSeparator : str) -> list :
-    arrResult = []
-    
-    if len(arrStrArray) == 1 :
-        arrResult = [str(obj) for obj in arrStrArray[0]]
-    else :
-        arrNestedResult = JoinMultipleStringArray(arrStrArray[1:], sSeparator)
-        for str1 in arrStrArray[0] :
-            for str2 in arrNestedResult :
-                arrResult.append(str(str1) + sSeparator + str2)
-            #Next
-        #Next
-    #End If
-    
-    return arrResult
-#End Function
-
 if __name__ == "__main__" :
     # Load translations
-    sTransFile = "tags_translated_1786981181742.jsonl"
+    sTransFile = Shared.sTransFile
     dctTrans = Trans.LoadTranslatedTags(sTransFile)
     sTransTimestamp = pathlib.Path(sTransFile).stem
     sTransTimestamp = sTransTimestamp.removeprefix("tags_translated_")
@@ -105,7 +36,7 @@ if __name__ == "__main__" :
         #End If
     #Next
     if IsDerpibooruDbNeeded :
-        dbDerpibooru = DerpibooruDatabaseDump("derpibooru_public_dump_2026_08_15.pgdump")
+        dbDerpibooru = DerpibooruDatabaseDump(Shared.sDerpibooruDatabseDump)
         dbDerpibooru.PrintInfo()
         sDerpibooruTimestamp = dbDerpibooru.GetTimestamp()
         print("Getting tags ...")
@@ -114,15 +45,10 @@ if __name__ == "__main__" :
         nTags = len(dctTagsById.keys())
         print(f"{nTags} tags found in database dump")
         print("Getting image tags ...")
-        if os.path.exists("_Cache/dctImageTags.pkl") :
-            with open("_Cache/dctImageTags.pkl", "rb") as filObjDump : 
-                dctImageTags = pickle.load(filObjDump)
-            #End With
-        else :
+        dctImageTags = Shared.LoadObjectFromFile("_Cache/dctImageTags.pkl")
+        if dctImageTags is None :
             dctImageTags = dbDerpibooru.GetImageTags()
-            with open("_Cache/dctImageTags.pkl", "wb") as filObjDump : 
-                pickle.dump(dctImageTags, filObjDump)
-            #End With
+            Shared.DumpObjectToFile(dctImageTags, "_Cache/dctImageTags.pkl")
         #End If
         nImages = len(dctImageTags.keys())
         print(f"{nImages} images found in database dump")
@@ -377,7 +303,7 @@ if __name__ == "__main__" :
                         if not (iCurrentShipTag in arrTagIds) :
                             continue
                         #End If
-                        arrTagIntersection = IntersectArrays(arrTagIntersection, arrTagIds, sEmptyListOperation="keep")
+                        arrTagIntersection = Shared.IntersectArrays(arrTagIntersection, arrTagIds, sEmptyListOperation="keep")
                         for tag in arrTagIds :
                             if tag in dctTagCounter.keys() :
                                 dctTagCounter[tag] += 1
@@ -453,7 +379,7 @@ if __name__ == "__main__" :
                 #End If
                 arrTranslatedTags.append(arrCurrentTagTrans)
             #Next
-            arrResult = JoinMultipleStringArray(arrTranslatedTags, "x")
+            arrResult = Shared.JoinMultipleStringArray(arrTranslatedTags, "x")
             arrResultShip = [f"cp:{s}" for s in arrResult]
             print(f"        Proposed result: {arrResultShip}")
             

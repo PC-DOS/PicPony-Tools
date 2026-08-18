@@ -1,88 +1,19 @@
 import os
 import copy
-import pickle
 import datetime
 import pathlib
 
 import numpy as np
 import matplotlib.pyplot as plt
 
+import SharedDataAndFunc as Shared
 #import TranslatedTagsUtilPlainText as Trans
 import TranslatedTagsUtilJSON as Trans
 from DerpibooruDatabaseDump import DerpibooruDatabaseDump
 
-# Dump an object to persistent file on disk
-def DumpObjectToFile(objInstance : object, sPath : str) :
-    import pickle
-    with open(sPath, "wb") as filObjDump :
-        pickle.dump(objInstance, filObjDump)
-    #End With
-#End Sub
-
-# Load an object from persistent file on disk
-def LoadObjectFromFile(sPath : str) -> object :
-    import pickle
-    with open(sPath, "rb") as filObjDump :
-        objInstance = pickle.load(filObjDump)
-    #End With
-    return objInstance
-#End Function
-
-# Intersect arrays (get intersection)
-# Duplicate elements will be merged
-# If sEmptyListOperation is set to "none", will do normal mathematical intersection calculation (Set1 & EmptySet == EmptySet)
-# If sEmptyListOperation is set to "keep" and one of the given arrays is empty, intersection will not be calculated, and will return another array (Set1 & EmptySet == Set1)
-def IntersectArrays(arrArray1 : list, arrArray2 : list,
-    IsDuplicateItemsDropped : bool = True, sEmptyListOperation : str = "none") -> list :
-
-    # Check if one of the given arrays is empty
-    if sEmptyListOperation.lower() == "keep" :
-        if len(arrArray1) == 0 :
-            return copy.deepcopy(arrArray2)
-        elif len(arrArray2) == 0 :
-            return copy.deepcopy(arrArray1)
-        #End If
-    #End If
-
-    arrResult = []
-    for CurrentElement in arrArray1 :
-        if (CurrentElement in arrResult) and IsDuplicateItemsDropped :
-            continue
-        #End If
-        if CurrentElement in arrArray2 :
-            if (CurrentElement in arrResult) and IsDuplicateItemsDropped :
-                continue
-            #End If
-            arrResult.append(CurrentElement)
-        #End If
-    #Next
-
-    return arrResult
-#End Function
-
-# Join multiple string arrays
-# For example, arrStrArray=[["a1","a2"], ["b1","b2"]], sSeparator=" x "
-# This func will return ["a1 x b1", "a1 x b2", "a2 x b1", "a2 x b2"]
-def JoinMultipleStringArray(arrStrArray : list, sSeparator : str) -> list :
-    arrResult = []
-    
-    if len(arrStrArray) == 1 :
-        arrResult = [str(obj) for obj in arrStrArray[0]]
-    else :
-        arrNestedResult = JoinMultipleStringArray(arrStrArray[1:], sSeparator)
-        for str1 in arrStrArray[0] :
-            for str2 in arrNestedResult :
-                arrResult.append(str(str1) + sSeparator + str2)
-            #Next
-        #Next
-    #End If
-    
-    return arrResult
-#End Function
-
 if __name__ == "__main__" :
     # Load translations
-    sTransFile = "tags_translated_1786981181742.jsonl"
+    sTransFile = Shared.sTransFile
     dctTrans = Trans.LoadTranslatedTags(sTransFile)
     sTransTimestamp = pathlib.Path(sTransFile).stem
     sTransTimestamp = sTransTimestamp.removeprefix("tags_translated_")
@@ -92,14 +23,14 @@ if __name__ == "__main__" :
     print(f"Translation file timestamp: {sTransTimestamp}")
     
     # Load source trans
-    sTragetFile = "Job:Rule63_OC"
+    sTragetFile = "Job:Fat"
     sProcessedFile = "tags_trans_output.jsonl"
     dctTarget = dict()
     
     # Load Derpibooru database dump
     IsDerpibooruDbNeeded = True
     if IsDerpibooruDbNeeded :
-        dbDerpibooru = DerpibooruDatabaseDump("derpibooru_public_dump_2026_08_15.pgdump")
+        dbDerpibooru = DerpibooruDatabaseDump(Shared.sDerpibooruDatabseDump)
         dbDerpibooru.PrintInfo()
         sDerpibooruTimestamp = dbDerpibooru.GetTimestamp()
         print("Getting tags ...")
@@ -108,15 +39,10 @@ if __name__ == "__main__" :
         nTags = len(dctTagsById.keys())
         print(f"{nTags} tags found in database dump")
         print("Getting image tags ...")
-        if os.path.exists("_Cache/dctImageTags.pkl") :
-            with open("_Cache/dctImageTags.pkl", "rb") as filObjDump : 
-                dctImageTags = pickle.load(filObjDump)
-            #End With
-        else :
+        dctImageTags = Shared.LoadObjectFromFile("_Cache/dctImageTags.pkl")
+        if dctImageTags is None :
             dctImageTags = dbDerpibooru.GetImageTags()
-            with open("_Cache/dctImageTags.pkl", "wb") as filObjDump : 
-                pickle.dump(dctImageTags, filObjDump)
-            #End With
+            Shared.DumpObjectToFile(dctImageTags, "_Cache/dctImageTags.pkl")
         #End If
         nImages = len(dctImageTags.keys())
         print(f"{nImages} images found in database dump")
@@ -167,6 +93,135 @@ if __name__ == "__main__" :
                                 #Next
                             else :
                                 dctCurrentTag["TransCn"].append(f"性转{sCurrentBaseTag}")
+                            #End If
+                            dctTarget[sCurrentTag] = dctCurrentTag
+                            nProcessed += 1
+                            nTotal += 1
+                            break
+                        #End If
+                    #End If
+                #Next
+            #End If
+        #Next
+    elif sTragetFile.lower() == "Job:Butt".lower() :
+        iButtTagId = dctTagsByName["butt"]["Id"]
+        for CurrentTagId in dctTagImpl.keys() :
+            sCurrentTag = dctTagsById[CurrentTagId]["Name"]
+            if sCurrentTag in dctTrans.keys() :
+                continue
+            #End If
+            
+            arrCurrentImpl = dctTagImpl[CurrentTagId]
+            
+            if iButtTagId in arrCurrentImpl :
+                nCharacterCount = 0
+                for SubTagId in arrCurrentImpl :
+                    if (not (dctTagsById[SubTagId]["Category"] is None)) and (dctTagsById[SubTagId]["Category"].lower() == "character") :
+                        nCharacterCount += 1
+                    #End If
+                #Next
+                if nCharacterCount != 1 :
+                    continue
+                #End If
+            
+                for SubTagId in arrCurrentImpl :
+                    if SubTagId != iButtTagId :
+                        if (not (dctTagsById[SubTagId]["Category"] is None)) and (dctTagsById[SubTagId]["Category"].lower() == "character") :
+                            sCurrentBaseTag = dctTagsById[SubTagId]["Name"]
+                            print(f"Hit tag: {sCurrentTag}, base tag: {sCurrentBaseTag}")
+                            dctCurrentTag = dict(TransCn=[], Desc="")
+                            if sCurrentBaseTag in dctTrans.keys() :
+                                for CurrentTrans in dctTrans[sCurrentBaseTag]["TransCn"] :
+                                    dctCurrentTag["TransCn"].append(f"{CurrentTrans}的屁股")
+                                #Next
+                            else :
+                                dctCurrentTag["TransCn"].append(f"{sCurrentBaseTag}的屁股")
+                            #End If
+                            dctTarget[sCurrentTag] = dctCurrentTag
+                            nProcessed += 1
+                            nTotal += 1
+                            break
+                        #End If
+                    #End If
+                #Next
+            #End If
+        #Next
+    elif sTragetFile.lower() == "Job:ButtOC".lower() :
+        iButtTagId = dctTagsByName["butt"]["Id"]
+        for CurrentTagId in dctTagImpl.keys() :
+            sCurrentTag = dctTagsById[CurrentTagId]["Name"]
+            if sCurrentTag in dctTrans.keys() :
+                continue
+            #End If
+            
+            arrCurrentImpl = dctTagImpl[CurrentTagId]
+            
+            if iButtTagId in arrCurrentImpl :
+                nCharacterCount = 0
+                for SubTagId in arrCurrentImpl :
+                    if dctTagsById[SubTagId]["Name"].startswith("oc:") :
+                        nCharacterCount += 1
+                    #End If
+                #Next
+                if nCharacterCount != 1 :
+                    continue
+                #End If
+            
+                for SubTagId in arrCurrentImpl :
+                    if SubTagId != iButtTagId :
+                        if dctTagsById[SubTagId]["Name"].startswith("oc:") :
+                            sCurrentBaseTag = dctTagsById[SubTagId]["Name"]
+                            print(f"Hit tag: {sCurrentTag}, base tag: {sCurrentBaseTag}")
+                            dctCurrentTag = dict(TransCn=[], Desc="")
+                            if sCurrentBaseTag in dctTrans.keys() :
+                                for CurrentTrans in dctTrans[sCurrentBaseTag]["TransCn"] :
+                                    dctCurrentTag["TransCn"].append(f"{CurrentTrans.removeprefix('oc:')}的屁股")
+                                #Next
+                            else :
+                                dctCurrentTag["TransCn"].append(f"{sCurrentBaseTag.removeprefix('oc:')}（OC）的屁股")
+                            #End If
+                            dctTarget[sCurrentTag] = dctCurrentTag
+                            nProcessed += 1
+                            nTotal += 1
+                            break
+                        #End If
+                    #End If
+                #Next
+            #End If
+        #Next
+    elif sTragetFile.lower() == "Job:Fat".lower() :
+        iFatTagId = dctTagsByName["fat"]["Id"]
+        for CurrentTagId in dctTagImpl.keys() :
+            sCurrentTag = dctTagsById[CurrentTagId]["Name"]
+            if sCurrentTag in dctTrans.keys() :
+                continue
+            #End If
+            
+            arrCurrentImpl = dctTagImpl[CurrentTagId]
+            
+            if iFatTagId in arrCurrentImpl :
+                nCharacterCount = 0
+                for SubTagId in arrCurrentImpl :
+                    if (not (dctTagsById[SubTagId]["Category"] is None)) and (dctTagsById[SubTagId]["Category"].lower() == "character") :
+                        nCharacterCount += 1
+                    #End If
+                #Next
+                if nCharacterCount != 1 :
+                    continue
+                #End If
+            
+                for SubTagId in arrCurrentImpl :
+                    if SubTagId != iFatTagId :
+                        if (not (dctTagsById[SubTagId]["Category"] is None)) and (dctTagsById[SubTagId]["Category"].lower() == "character") :
+                            sCurrentBaseTag = dctTagsById[SubTagId]["Name"]
+                            print(f"Hit tag: {sCurrentTag}, base tag: {sCurrentBaseTag}")
+                            dctCurrentTag = dict(TransCn=[], Desc="")
+                            if sCurrentBaseTag in dctTrans.keys() :
+                                for CurrentTrans in dctTrans[sCurrentBaseTag]["TransCn"] :
+                                    dctCurrentTag["TransCn"].append(f"肥胖的{CurrentTrans}")
+                                #Next
+                            else :
+                                dctCurrentTag["TransCn"].append(f"肥胖的{sCurrentBaseTag}")
                             #End If
                             dctTarget[sCurrentTag] = dctCurrentTag
                             nProcessed += 1

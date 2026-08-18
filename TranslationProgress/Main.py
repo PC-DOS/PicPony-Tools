@@ -1,35 +1,18 @@
 import os
-import pickle
 import datetime
 import pathlib
 
 import numpy as np
 import matplotlib.pyplot as plt
 
+import SharedDataAndFunc as Shared
 #import TranslatedTagsUtilPlainText as Trans
 import TranslatedTagsUtilJSON as Trans
 from DerpibooruDatabaseDump import DerpibooruDatabaseDump
 
-# Dump an object to persistent file on disk
-def DumpObjectToFile(objInstance : object, sPath : str) :
-    import pickle
-    with open(sPath, "wb") as filObjDump :
-        pickle.dump(objInstance, filObjDump)
-    #End With
-#End Sub
-
-# Load an object from persistent file on disk
-def LoadObjectFromFile(sPath : str) -> object :
-    import pickle
-    with open(sPath, "rb") as filObjDump :
-        objInstance = pickle.load(filObjDump)
-    #End With
-    return objInstance
-#End Function
-
 if __name__ == "__main__" :
     # Load translations
-    sTransFile = "tags_translated_1786981181742.jsonl"
+    sTransFile = Shared.sTransFile
     dctTrans = Trans.LoadTranslatedTags(sTransFile)
     sTransTimestamp = pathlib.Path(sTransFile).stem
     sTransTimestamp = sTransTimestamp.removeprefix("tags_translated_")
@@ -39,7 +22,7 @@ if __name__ == "__main__" :
     print(f"Translation file timestamp: {sTransTimestamp}")
     
     # Load Derpibooru database dump
-    dbDerpibooru = DerpibooruDatabaseDump("derpibooru_public_dump_2026_08_15.pgdump")
+    dbDerpibooru = DerpibooruDatabaseDump(Shared.sDerpibooruDatabseDump)
     dbDerpibooru.PrintInfo()
     sDerpibooruTimestamp = dbDerpibooru.GetTimestamp()
     print("Getting tags ...")
@@ -48,15 +31,10 @@ if __name__ == "__main__" :
     nTags = len(dctTagsById.keys())
     print(f"{nTags} tags found in database dump")
     print("Getting image tags ...")
-    if os.path.exists("_Cache/dctImageTags.pkl") :
-        with open("_Cache/dctImageTags.pkl", "rb") as filObjDump : 
-            dctImageTags = pickle.load(filObjDump)
-        #End With
-    else :
+    dctImageTags = Shared.LoadObjectFromFile("_Cache/dctImageTags.pkl")
+    if dctImageTags is None :
         dctImageTags = dbDerpibooru.GetImageTags()
-        with open("_Cache/dctImageTags.pkl", "wb") as filObjDump : 
-            pickle.dump(dctImageTags, filObjDump)
-        #End With
+        Shared.DumpObjectToFile(dctImageTags, "_Cache/dctImageTags.pkl")
     #End If
     nImages = len(dctImageTags.keys())
     print(f"{nImages} images found in database dump")
