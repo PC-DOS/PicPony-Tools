@@ -1,6 +1,9 @@
 import time
+import os
 
 import pgdumplib
+
+import SharedDataAndFunc as Shared
 
 class DerpibooruDatabaseDump() :
     
@@ -14,6 +17,7 @@ class DerpibooruDatabaseDump() :
         dNsDelay = dNsEnd - dNsStart
         dTimeElapsed = dNsDelay / 1000.0 / 1000.0 / 1000.0
         print(f"Dump file {sDumpFile} loaded in {round(dTimeElapsed, 2)} seconds")
+        os.makedirs("_Cache/", exist_ok=True)
     #End Sub
     
     # Print info
@@ -32,20 +36,27 @@ class DerpibooruDatabaseDump() :
     # Get tags
     def GetTags(self, sIndexType : str = "name", IsReloadRequested : bool = False) -> dict :
         if (not self._IsTagsLoaded) or IsReloadRequested :
-            tblTagTable = self._dmpDumpData.table_data("public", "tags")
-            for CurrentTag in tblTagTable :
-                dctCurrentTagInfo = dict(Id=0, ImageCount=0, Name="", Slug="", Category="", Desc="", ShortDesc="")
-                dctCurrentTagInfo["Id"] = int(CurrentTag[0])
-                dctCurrentTagInfo["ImageCount"] = int(CurrentTag[1])
-                dctCurrentTagInfo["Name"] = CurrentTag[2]
-                dctCurrentTagInfo["Slug"] = CurrentTag[3]
-                dctCurrentTagInfo["Category"] = self.SafeIndex(CurrentTag, 4, None)
-                dctCurrentTagInfo["Desc"] = self.SafeIndex(CurrentTag, 5, "")
-                dctCurrentTagInfo["ShortDesc"] = self.SafeIndex(CurrentTag, 6, "")
-                
-                self._dctTagInfoByName[dctCurrentTagInfo["Name"]] = dctCurrentTagInfo
-                self._dctTagInfoById[dctCurrentTagInfo["Id"]] = dctCurrentTagInfo
-            #Next
+            tplTagInfo = Shared.LoadObjectFromFile("_Cache/tplTagInfo.pkl")
+            if tplTagInfo is None :
+                tblTagTable = self._dmpDumpData.table_data("public", "tags")
+                for CurrentTag in tblTagTable :
+                    dctCurrentTagInfo = dict(Id=0, ImageCount=0, Name="", Slug="", Category="", Desc="", ShortDesc="")
+                    dctCurrentTagInfo["Id"] = int(CurrentTag[0])
+                    dctCurrentTagInfo["ImageCount"] = int(CurrentTag[1])
+                    dctCurrentTagInfo["Name"] = CurrentTag[2]
+                    dctCurrentTagInfo["Slug"] = CurrentTag[3]
+                    dctCurrentTagInfo["Category"] = Shared.GetDataAtIndex(CurrentTag, 4, None)
+                    dctCurrentTagInfo["Desc"] = Shared.GetDataAtIndex(CurrentTag, 5, "")
+                    dctCurrentTagInfo["ShortDesc"] = Shared.GetDataAtIndex(CurrentTag, 6, "")
+                    
+                    self._dctTagInfoByName[dctCurrentTagInfo["Name"]] = dctCurrentTagInfo
+                    self._dctTagInfoById[dctCurrentTagInfo["Id"]] = dctCurrentTagInfo
+                #Next
+                tplTagInfo = (self._dctTagInfoByName, self._dctTagInfoById)
+                Shared.DumpObjectToFile(tplTagInfo, "_Cache/tplTagInfo.pkl")
+            #End If
+            self._dctTagInfoByName = tplTagInfo[0]
+            self._dctTagInfoById = tplTagInfo[1]
             self._IsTagsLoaded = True
         #End If
         
@@ -67,16 +78,20 @@ class DerpibooruDatabaseDump() :
     # Get image tags
     def GetImageTags(self, IsReloadRequested : bool = False) -> dict :
         if (not self._IsImageTagsLoaded) or IsReloadRequested :
-            tblImageTagTable = self._dmpDumpData.table_data("public", "image_taggings")
-            self._dctImageTags = dict()
-            for CurrentImage in tblImageTagTable :
-                iCurrentImageId = int(CurrentImage[0])
-                iCurrentImageTag = int(CurrentImage[1])
-                if not (iCurrentImageId in self._dctImageTags.keys()) :
-                    self._dctImageTags[iCurrentImageId] = []
-                #End If
-                self._dctImageTags[iCurrentImageId].append(iCurrentImageTag)
-            #Next
+            self._dctImageTags = Shared.LoadObjectFromFile("_Cache/dctImageTags.pkl")
+            if self._dctImageTags is None :
+                tblImageTagTable = self._dmpDumpData.table_data("public", "image_taggings")
+                self._dctImageTags = dict()
+                for CurrentImage in tblImageTagTable :
+                    iCurrentImageId = int(CurrentImage[0])
+                    iCurrentImageTag = int(CurrentImage[1])
+                    if not (iCurrentImageId in self._dctImageTags.keys()) :
+                        self._dctImageTags[iCurrentImageId] = []
+                    #End If
+                    self._dctImageTags[iCurrentImageId].append(iCurrentImageTag)
+                #Next
+                Shared.DumpObjectToFile(self._dctImageTags, "_Cache/dctImageTags.pkl")
+            #End If
             self._IsImageTagsLoaded = True
         #End If
         
@@ -86,13 +101,17 @@ class DerpibooruDatabaseDump() :
     # Get image hides
     def GetImageHides(self, IsReloadRequested : bool = False) -> dict :
         if (not self._IsImageHidesLoaded) or IsReloadRequested :
-            tblImageHideTable = self._dmpDumpData.table_data("public", "image_hides")
-            self._dctImageHides = dict()
-            for CurrentImage in tblImageHideTable :
-                iCurrentImageId = int(CurrentImage[0])
-                sCurrentImageHideReason = self.SafeIndex(CurrentImage, 1, "")
-                self._dctImageHides[iCurrentImageId] = sCurrentImageHideReason
-            #Next
+            self._dctImageHides = Shared.LoadObjectFromFile("_Cache/dctImageHides.pkl")
+            if self._dctImageHides is None :
+                tblImageHideTable = self._dmpDumpData.table_data("public", "image_hides")
+                self._dctImageHides = dict()
+                for CurrentImage in tblImageHideTable :
+                    iCurrentImageId = int(CurrentImage[0])
+                    sCurrentImageHideReason = Shared.GetDataAtIndex(CurrentImage, 1, "")
+                    self._dctImageHides[iCurrentImageId] = sCurrentImageHideReason
+                #Next
+                Shared.DumpObjectToFile(self._dctImageHides, "_Cache/dctImageHides.pkl")
+            #End If
             self._IsImageHidesLoaded = True
         #End If
         
@@ -102,16 +121,20 @@ class DerpibooruDatabaseDump() :
     # Get tag to image mapping
     def GetTagToImageMapping(self, IsReloadRequested : bool = False) -> dict :
         if (not self._IsTagToImageMappingLoaded) or IsReloadRequested :
-            tblImageTagTable = self._dmpDumpData.table_data("public", "image_taggings")
-            self._dctTagToImageMapping = dict()
-            for CurrentImage in tblImageTagTable :
-                iCurrentImageId = int(CurrentImage[0])
-                iCurrentImageTag = int(CurrentImage[1])
-                if not (iCurrentImageTag in self._dctTagToImageMapping.keys()) :
-                    self._dctTagToImageMapping[iCurrentImageTag] = []
-                #End If
-                self._dctTagToImageMapping[iCurrentImageTag].append(iCurrentImageId)
-            #Next
+            self._dctTagToImageMapping = Shared.LoadObjectFromFile("_Cache/dctTagToImageMapping.pkl")
+            if _dctTagToImageMapping is None :
+                tblImageTagTable = self._dmpDumpData.table_data("public", "image_taggings")
+                self._dctTagToImageMapping = dict()
+                for CurrentImage in tblImageTagTable :
+                    iCurrentImageId = int(CurrentImage[0])
+                    iCurrentImageTag = int(CurrentImage[1])
+                    if not (iCurrentImageTag in self._dctTagToImageMapping.keys()) :
+                        self._dctTagToImageMapping[iCurrentImageTag] = []
+                    #End If
+                    self._dctTagToImageMapping[iCurrentImageTag].append(iCurrentImageId)
+                #Next
+                Shared.DumpObjectToFile(self._dctTagToImageMapping, "_Cache/dctTagToImageMapping.pkl")
+            #End If
             self._IsTagToImageMappingLoaded = True
         #End If
         
@@ -121,30 +144,43 @@ class DerpibooruDatabaseDump() :
     # Get tag to image mapping
     def GetTagImplications(self, IsReloadRequested : bool = False) -> dict :
         if (not self._IsTagImplicationsLoaded) or IsReloadRequested :
-            tblImageTagTable = self._dmpDumpData.table_data("public", "tag_implications")
-            self._dctTagImplications = dict()
-            for CurrentTag in tblImageTagTable :
-                iCurrentTagId = int(CurrentTag[0])
-                iCurrentTagTarget = int(CurrentTag[1])
-                if not (iCurrentTagId in self._dctTagImplications.keys()) :
-                    self._dctTagImplications[iCurrentTagId] = []
-                #End If
-                self._dctTagImplications[iCurrentTagId].append(iCurrentTagTarget)
-            #Next
+            self._dctTagImplications = Shared.LoadObjectFromFile("_Cache/dctTagImplications.pkl")
+            if self._dctTagImplications is None :
+                tblImageTagTable = self._dmpDumpData.table_data("public", "tag_implications")
+                self._dctTagImplications = dict()
+                for CurrentTag in tblImageTagTable :
+                    iCurrentTagId = int(CurrentTag[0])
+                    iCurrentTagTarget = int(CurrentTag[1])
+                    if not (iCurrentTagId in self._dctTagImplications.keys()) :
+                        self._dctTagImplications[iCurrentTagId] = []
+                    #End If
+                    self._dctTagImplications[iCurrentTagId].append(iCurrentTagTarget)
+                #Next
+                Shared.DumpObjectToFile(self._dctTagImplications, "_Cache/dctTagImplications.pkl")
+            #End If
             self._IsTagImplicationsLoaded = True
         #End If
         
         return self._dctTagImplications
     #End Function
     
-    # Safe indexing
-    def SafeIndex(self, objSource : object, objIndex : object, objDefault : object = None) -> object :
+    # Check if sLeftTag implies
+    def IsTagImplies(self, sLeftTag : str, sRightTag : str) -> bool :
+        self.GetTagsById()
+        self.GetTagImplications()
         try :
-            return objSource[objIndex]
+            iLeftTag = self._dctTagInfoByName[sLeftTag]["Id"]
+            iRightTag = self._dctTagInfoByName[sRightTag]["Id"]
         except :
-            return objDefault
+            return False
         #End Try
-    #End If
+        
+        if iLeftTag in self._dctTagImplications.keys() :
+            return (iRightTag in self._dctTagImplications[iLeftTag])
+        else :
+            return False
+        #End If
+    #End Function
     
     # Properties
     

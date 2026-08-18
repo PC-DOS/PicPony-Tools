@@ -25,12 +25,18 @@ if __name__ == "__main__" :
     # Load source trans
     sTragetFile = "tags_page_1.jsonl"
     sProcessedFile = "tags_trans_output.jsonl"
+    sProcessedFileExt = "tags_trans_output_ext.jsonl"
     dctTarget = Trans.LoadTranslatedTags(sTragetFile)
+    dctExtTarget = dict()
     
     # Load Derpibooru database dump
     IsDerpibooruDbNeeded = False
     for CurrentTag in dctTarget.keys() :
         if CurrentTag.startswith("ship:") :
+            IsDerpibooruDbNeeded = True
+            break
+        #End If
+        if CurrentTag.startswith("parents:") :
             IsDerpibooruDbNeeded = True
             break
         #End If
@@ -45,11 +51,7 @@ if __name__ == "__main__" :
         nTags = len(dctTagsById.keys())
         print(f"{nTags} tags found in database dump")
         print("Getting image tags ...")
-        dctImageTags = Shared.LoadObjectFromFile("_Cache/dctImageTags.pkl")
-        if dctImageTags is None :
-            dctImageTags = dbDerpibooru.GetImageTags()
-            Shared.DumpObjectToFile(dctImageTags, "_Cache/dctImageTags.pkl")
-        #End If
+        dctImageTags = dbDerpibooru.GetImageTags()
         nImages = len(dctImageTags.keys())
         print(f"{nImages} images found in database dump")
         print("Getting hidden images ...")
@@ -78,8 +80,133 @@ if __name__ == "__main__" :
                     dctTarget[CurrentTag]["TransCn"].append(f"亲代：{CurrentSource.removeprefix('cp:')}")
                 #Next
                 nProcessed += 1
+            elif dctTagsByName[CurrentTag]["Id"] in dctTagImpl :
+                print(f"    Using implications logic for {CurrentTag}")
+                arrParentsStr = []
+                arrParentsTrans = []
+                for CurrentImplId in dctTagImpl[dctTagsByName[CurrentTag]["Id"]] :
+                    sCurrentImpl = dctTagsById[CurrentImplId]["Name"]
+                    if sCurrentImpl.startswith("parent:") :
+                        sCurrentImplBase = sCurrentImpl.removeprefix("parent:")
+                        arrParentsStr.append(sCurrentImplBase)
+                        if sCurrentImplBase in dctTrans.keys() :
+                            arrParentsTrans.append(dctTrans[sCurrentImplBase]["TransCn"])
+                        else :
+                            arrParentsTrans.append([sCurrentImplBase])
+                        #End If
+                    #End If
+                #End If
+                arrResult = Shared.JoinMultipleStringArray(arrParentsTrans, "x")
+                arrResultParents = [f"亲代：{s}" for s in arrResult]
+                print(f"    Propsed result: {arrResultParents}")
+                dctTarget[CurrentTag]["TransCn"] = arrResultParents
+                dctExtTarget[sBaseTag] = dict(TransCn=arrResult, Desc="")
+                nProcessed += 1
             else :
-                nSkipped += 1
+                print(f"    Using image intersection logic for {CurrentTag}")
+                iCurrentShipTag = dctTagsByName[CurrentTag]["Id"]
+                dctTagCounter = dict()
+                arrTagIntersection = []
+                for CurrentImg in dctImageTags.keys() :
+                    if CurrentImg in dctImageHides.keys() :
+                        continue
+                    #End If
+                    arrTagIds = dctImageTags[CurrentImg]
+                    if not (iCurrentShipTag in arrTagIds) :
+                        continue
+                    #End If
+                    arrTagIntersection = Shared.IntersectArrays(arrTagIntersection, arrTagIds, sEmptyListOperation="keep")
+                    for tag in arrTagIds :
+                        if tag in dctTagCounter.keys() :
+                            dctTagCounter[tag] += 1
+                        else :
+                            dctTagCounter[tag] = 1
+                        #End If
+                    #Next
+                #Next
+                
+                # Get max count tags
+                nMaxTagCount = min(10, len(dctTagCounter.keys()))
+                arrTopTags = []
+                for j in range(0, nMaxTagCount) :
+                    iCurrentTag = max(dctTagCounter, key=dctTagCounter.get)
+                    if not (iCurrentTag in arrTagIntersection) :
+                        arrTagIntersection.append(iCurrentTag)
+                    #End If
+                    dctTagCounter[iCurrentTag] = -1
+                    arrTopTags.append(dctTagsById[iCurrentTag]["Name"])
+                #Next
+                print(f"        Top tags: {arrTopTags}")
+                print(f"        Intersected tag IDs: {arrTagIntersection}")
+            
+                # Map tag intersection to text
+                arrTagIntersectionStrRaw = []
+                arrTagIntersectionStr = []
+                for CurrentId in arrTagIntersection :
+                    arrTagIntersectionStrRaw.append(dctTagsById[CurrentId]["Name"])
+                    if dctTagsById[CurrentId]["Category"] is None :
+                        if dctTagsById[CurrentId]["Name"].startswith("parent:") :
+                            arrTagIntersectionStr.append(dctTagsById[CurrentId]["Name"].removeprefix("parent:"))
+                        else :
+                            continue
+                        #End If
+                    elif dctTagsById[CurrentId]["Category"].lower() == "character" :
+                        continue
+                    elif dctTagsById[CurrentId]["Name"].startswith("oc:") :
+                        continue
+                    #End If
+                #Next
+                arrObjToRemove = []
+                for i in range(0, len(arrTagIntersectionStr)) :
+                    for j in range(0, len(arrTagIntersectionStr)) :
+                        if i == j :
+                            continue
+                        #End If
+                        if dbDerpibooru.IsTagImplies(arrTagIntersectionStr[i], arrTagIntersectionStr[j]) :
+                            arrObjToRemove.append(arrTagIntersectionStr[j])
+                        #End If
+                    #Next
+                #Next
+                for s in arrObjToRemove :
+                    if s in arrTagIntersectionStr :
+                        arrTagIntersectionStr.remove(s)
+                    #End If
+                #Next
+                print(f"        Intersected tag names: {arrTagIntersectionStrRaw}")
+                print(f"        Intersected tag names (character & oc only): {arrTagIntersectionStr}")
+                if len(arrTagIntersectionStr) <= 1 :
+                    nSkipped += 1
+                    continue
+                #End If
+                
+                # Translating
+                arrTranslatedTags = []
+                arrResult = []
+                for i in range(0, len(arrTagIntersectionStr)) :
+                    arrCurrentTagTrans = []
+                    if arrTagIntersectionStr[i].startswith("oc:") :
+                        if arrTagIntersectionStr[i] in dctTrans.keys() :
+                            arrCurrentTagTrans = [s.removeprefix("oc:") for s in dctTrans[arrTagIntersectionStr[i]]["TransCn"]]
+                        else :
+                            arrCurrentTagTrans = [arrTagIntersectionStr[i].removeprefix("oc:") + "（OC）"]
+                        #End If
+                    else :
+                        if arrTagIntersectionStr[i] in dctTrans.keys() :
+                            arrCurrentTagTrans = [s for s in dctTrans[arrTagIntersectionStr[i]]["TransCn"]]
+                        else :
+                            arrCurrentTagTrans = [arrTagIntersectionStr[i]]
+                        #End If
+                    #End If
+                    arrTranslatedTags.append(arrCurrentTagTrans)
+                #Next
+                arrResult = Shared.JoinMultipleStringArray(arrTranslatedTags, "x")
+                arrResultShip = [f"亲代：{s}" for s in arrResult]
+                print(f"        Proposed result: {arrResultShip}")
+                
+                # Outputting
+                dctTarget[CurrentTag]["TransCn"] = arrResultShip
+                dctExtTarget[sBaseTag] = dict(TransCn=arrResult, Desc="")
+                nProcessed += 1
             #End If
         elif CurrentTag.startswith("parent:oc:") :
             sBaseTag = CurrentTag.removeprefix("parent:oc:")
@@ -352,6 +479,22 @@ if __name__ == "__main__" :
                     arrTagIntersectionStr.append(dctTagsById[CurrentId]["Name"])
                 #End If
             #Next
+            arrObjToRemove = []
+            for i in range(0, len(arrTagIntersectionStr)) :
+                for j in range(0, len(arrTagIntersectionStr)) :
+                    if i == j :
+                        continue
+                    #End If
+                    if dbDerpibooru.IsTagImplies(arrTagIntersectionStr[i], arrTagIntersectionStr[j]) :
+                        arrObjToRemove.append(arrTagIntersectionStr[j])
+                    #End If
+                #Next
+            #Next
+            for s in arrObjToRemove :
+                if s in arrTagIntersectionStr :
+                    arrTagIntersectionStr.remove(s)
+                #End If
+            #Next
             print(f"        Intersected tag names: {arrTagIntersectionStrRaw}")
             print(f"        Intersected tag names (character & oc only): {arrTagIntersectionStr}")
             if len(arrTagIntersectionStr) <= 1 :
@@ -401,4 +544,5 @@ if __name__ == "__main__" :
     
     # Outputting
     Trans.ExportTranslatedTags(dctTarget, sProcessedFile)
+    Trans.ExportTranslatedTags(dctExtTarget, sProcessedFileExt)
 #End If

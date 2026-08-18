@@ -31,11 +31,7 @@ if __name__ == "__main__" :
     nTags = len(dctTagsById.keys())
     print(f"{nTags} tags found in database dump")
     print("Getting image tags ...")
-    dctImageTags = Shared.LoadObjectFromFile("_Cache/dctImageTags.pkl")
-    if dctImageTags is None :
-        dctImageTags = dbDerpibooru.GetImageTags()
-        Shared.DumpObjectToFile(dctImageTags, "_Cache/dctImageTags.pkl")
-    #End If
+    dctImageTags = dbDerpibooru.GetImageTags()
     nImages = len(dctImageTags.keys())
     print(f"{nImages} images found in database dump")
     print("Getting hidden images ...")

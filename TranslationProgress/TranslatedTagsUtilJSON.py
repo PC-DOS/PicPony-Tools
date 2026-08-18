@@ -1,17 +1,6 @@
 import json
 
-# Splitting string with given separator, and remove empty results if requested
-def SplitString(sStringToSplit : str, sSeparator : str = None, nMaxSplitCount : int = -1, RemoveEmptyEntries : bool = False) -> list :
-    # Split string
-    arrResult = sStringToSplit.split(sep=sSeparator, maxsplit=nMaxSplitCount)
-
-    # Remove empty enrties
-    if RemoveEmptyEntries :
-        arrResult = list(filter(None, arrResult))
-    #End If
-
-    return arrResult
-#End Function
+import SharedDataAndFunc as Shared
 
 # Load translated tags
 def LoadTranslatedTags(sFile : str) -> dict :
