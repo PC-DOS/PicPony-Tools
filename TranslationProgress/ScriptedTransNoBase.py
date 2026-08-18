@@ -23,7 +23,7 @@ if __name__ == "__main__" :
     print(f"Translation file timestamp: {sTransTimestamp}")
     
     # Load source trans
-    sTragetFile = "Job:Fat"
+    sTragetFile = "Job:Flat"
     sProcessedFile = "tags_trans_output.jsonl"
     dctTarget = dict()
     
@@ -222,6 +222,49 @@ if __name__ == "__main__" :
                                 #Next
                             else :
                                 dctCurrentTag["TransCn"].append(f"肥胖的{sCurrentBaseTag}")
+                            #End If
+                            dctTarget[sCurrentTag] = dctCurrentTag
+                            nProcessed += 1
+                            nTotal += 1
+                            break
+                        #End If
+                    #End If
+                #Next
+            #End If
+        #Next
+    elif sTragetFile.lower() == "Job:Flat".lower() :
+        iFlatTagId = dctTagsByName["delicious flat chest"]["Id"]
+        for CurrentTagId in dctTagImpl.keys() :
+            sCurrentTag = dctTagsById[CurrentTagId]["Name"]
+            if sCurrentTag in dctTrans.keys() :
+                continue
+            #End If
+            
+            arrCurrentImpl = dctTagImpl[CurrentTagId]
+            
+            if iFlatTagId in arrCurrentImpl :
+                nCharacterCount = 0
+                for SubTagId in arrCurrentImpl :
+                    if (not (dctTagsById[SubTagId]["Category"] is None)) and (dctTagsById[SubTagId]["Category"].lower() == "character") :
+                        nCharacterCount += 1
+                    #End If
+                #Next
+                if nCharacterCount != 1 :
+                    continue
+                #End If
+            
+                for SubTagId in arrCurrentImpl :
+                    if SubTagId != iFlatTagId :
+                        if (not (dctTagsById[SubTagId]["Category"] is None)) and (dctTagsById[SubTagId]["Category"].lower() == "character") :
+                            sCurrentBaseTag = dctTagsById[SubTagId]["Name"]
+                            print(f"Hit tag: {sCurrentTag}, base tag: {sCurrentBaseTag}")
+                            dctCurrentTag = dict(TransCn=[], Desc="")
+                            if sCurrentBaseTag in dctTrans.keys() :
+                                for CurrentTrans in dctTrans[sCurrentBaseTag]["TransCn"] :
+                                    dctCurrentTag["TransCn"].append(f"平胸{CurrentTrans}")
+                                #Next
+                            else :
+                                dctCurrentTag["TransCn"].append(f"平胸{sCurrentBaseTag}")
                             #End If
                             dctTarget[sCurrentTag] = dctCurrentTag
                             nProcessed += 1
