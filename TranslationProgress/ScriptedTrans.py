@@ -577,6 +577,7 @@ if __name__ == "__main__" :
             else :
                 sBaseTag = CurrentTag.removeprefix("that pony sure does love ")
                 if sBaseTag in dctTrans.keys() :
+                    dctTarget[CurrentTag]["TransCn"] = []
                     for CurrentTrans in dctTrans[sBaseTag]["TransCn"] :
                         dctTarget[CurrentTag]["TransCn"].append(f"那匹小马可真喜欢{CurrentTrans}啊")
                     #Next
