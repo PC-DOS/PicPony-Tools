@@ -18,7 +18,11 @@ def LoadTranslatedTags(sFile : str) -> dict :
         for CurrentTrans in arrTraslationLines :
             dctCurrentTrans = json.loads(CurrentTrans)
             sTag = dctCurrentTrans["en"]
-            arrTrans = [dctCurrentTrans["cn"]]
+            if dctCurrentTrans["cn"] == "" :
+                arrTrans = []
+            else :
+                arrTrans = [dctCurrentTrans["cn"]]
+            #End If
             sDesc = dctCurrentTrans["description"]
             
             arrAlias = dctCurrentTrans["aliases"]

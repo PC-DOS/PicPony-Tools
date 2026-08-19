@@ -40,6 +40,14 @@ if __name__ == "__main__" :
             IsDerpibooruDbNeeded = True
             break
         #End If
+        if CurrentTag.startswith("that pony sure does love ") :
+            IsDerpibooruDbNeeded = True
+            break
+        #End If
+        if CurrentTag.startswith("this will end in ") :
+            IsDerpibooruDbNeeded = True
+            break
+        #End If
     #Next
     if IsDerpibooruDbNeeded :
         dbDerpibooru = DerpibooruDatabaseDump(Shared.sDerpibooruDatabseDump)
@@ -533,6 +541,63 @@ if __name__ == "__main__" :
             #    nSkipped += 1
             #End Try
             #input()
+        elif CurrentTag.startswith("that pony sure does love ") :
+            if dctTagsByName[CurrentTag]["Id"] in dctTagImpl :
+                print(f"    Using implications logic for {CurrentTag}")
+                sBaseTag = ""
+                sCharacterTag = ""
+                for CurrentImplId in dctTagImpl[dctTagsByName[CurrentTag]["Id"]] :
+                    sCurrentImpl = dctTagsById[CurrentImplId]["Name"]
+                    sCurrentImplCategory = dctTagsById[CurrentImplId]["Category"]
+                    if (sCurrentImplCategory is None) and (sBaseTag == "") :
+                        sBaseTag = sCurrentImpl
+                    elif sCurrentImplCategory == "character" :
+                        sCharacterTag = sCurrentImpl
+                    elif sCurrentImpl.startswith("oc:") :
+                        sCharacterTag = sCurrentImpl
+                    #End If
+                #End If
+                if sBaseTag in dctTrans.keys() :
+                    dctTarget[CurrentTag]["TransCn"] = []
+                    for CurrentTrans in dctTrans[sBaseTag]["TransCn"] :
+                        dctTarget[CurrentTag]["TransCn"].append(f"那匹小马可真喜欢{CurrentTrans}啊")
+                    #Next
+                else :
+                    nSkipped += 1
+                    continue
+                #End If
+                if sCharacterTag in dctTrans.keys() :
+                    dctTarget[CurrentTag]["Desc"] = f"指{dctTrans[sCharacterTag]['TransCn'][0]}"
+                elif sCharacterTag.removeprefix("oc:") in dctTrans.keys() :
+                    dctTarget[CurrentTag]["Desc"] = f"指{dctTrans[sCharacterTag]['TransCn'][0]}"
+                elif sCharacterTag.startswith("oc:") :
+                    dctTarget[CurrentTag]["Desc"] = f"指{sCharacterTag.removeprefix('oc:')}（OC）"
+                #End If
+                nProcessed += 1
+            else :
+                sBaseTag = CurrentTag.removeprefix("that pony sure does love ")
+                if sBaseTag in dctTrans.keys() :
+                    for CurrentTrans in dctTrans[sBaseTag]["TransCn"] :
+                        dctTarget[CurrentTag]["TransCn"].append(f"那匹小马可真喜欢{CurrentTrans}啊")
+                    #Next
+                    nProcessed += 1
+                else :
+                    nSkipped += 1
+                    continue
+                #End If
+            #End If
+        elif CurrentTag.startswith("this will end in ") :
+            sBaseTag = CurrentTag.removeprefix("this will end in ")
+            if sBaseTag in dctTrans.keys() :
+                dctTarget[CurrentTag]["TransCn"] = []
+                for CurrentTrans in dctTrans[sBaseTag]["TransCn"] :
+                    dctTarget[CurrentTag]["TransCn"].append(f"这会以{CurrentTrans}结局")
+                #Next
+                nProcessed += 1
+            else :
+                nSkipped += 1
+                continue
+            #End If
         else :
             nSkipped += 1
         #End If
@@ -544,5 +609,7 @@ if __name__ == "__main__" :
     
     # Outputting
     Trans.ExportTranslatedTags(dctTarget, sProcessedFile)
-    Trans.ExportTranslatedTags(dctExtTarget, sProcessedFileExt)
+    if len(dctExtTarget.keys()) > 0 :
+        Trans.ExportTranslatedTags(dctExtTarget, sProcessedFileExt)
+    #End If
 #End If
